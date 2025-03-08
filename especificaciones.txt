@@ -13,11 +13,10 @@ El sistema debe ser capaz de:
     * Domicilio
     * Telefono
     * estado
-
 - El sistema debe ser automatizar el estado de los clientes una vez que se venza dos cuotas impagas de pasar el estado del cliente de "Activo" a "Deudor"
 - El sistema debe generar pagare y contrato de mutuo tomando datos del listado de clientes, para luego ser impresa.
 - En el mainboard de este sistema se deben mostrar datos de fecha, lista de clientes que deben abonar el dia de la fecha y clientes que deben abonar durante esa semana, asi como el simulador de cuotas.
 - El simulador de cuotas debe tener el monto a prestar, cantidad de cuotas y si las cuotas son semanales, quincenales o mensuales.
 - Cuando se cree un nuevo credito el sistema seguir los pasos:
     1. Seleccionar cliente (listado y busqueda)
-    2. 
+    2. Si no se crea un nuevo cliente, que te mande a la pagina que cargue todos los datos correspondientes para poder cargar uno nuevo.
