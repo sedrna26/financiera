@@ -1,8 +1,0 @@
-//insertar nuevo cliente
-INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `dni`, `domicilio`, `telefono`) VALUES ('', '', '', '', '', '')
-
-//insertar nuevo pago
-INSERT INTO `pagos` (`id_pago`, `id_prestamo`, `fecha_pago`, `monto_pagado`) VALUES ('', '', '', '')
-
-//insertar nuevo prestamo
-INSERT INTO `prestamos` (`id_prestamo`, `id_cliente`, `fecha_entrega`, `monto_prestado`, `cantidad_cuotas`, `monto_cuota`) VALUES (NULL, '', '', '', '', '')

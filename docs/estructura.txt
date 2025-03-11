@@ -1,0 +1,26 @@
+/sistema-financiero
+├── README.md                # Documentación general del proyecto.
+├── docs/                    # Documentación adicional (requisitos, manuales, etc.).
+├── src/                     # Código fuente de la aplicación.
+│   ├── config/              # Configuraciones globales (por ejemplo, conexión a la base de datos en database.php).
+│   ├── modules/             # Cada módulo del sistema se encuentra aquí.
+│   │   ├── clientes/        # Gestión de clientes (CRUD, búsquedas, etc.).
+│   │   │   ├── index.php
+│   │   │   ├── registrar_cliente.php
+│   │   │   └── editar_cliente.php
+│   │   ├── creditos/        # Gestión de créditos (registro, actualización, historial, etc.).
+│   │   │   ├── index.php
+│   │   │   ├── registrar_credito.php
+│   │   │   └── detalle_credito.php
+│   │   ├── documentos/      # Generación de documentos para impresión (Pagaré y Contrato de Mutuo).
+│   │   │   ├── generar_documentos.php   # Código principal para la generación de PDFs.\n│   │   └── templates/                # Plantillas específicas para cada documento.\n│   │       ├── pagare_template.php\n│   │       └── contrato_mutuo_template.php
+│   │   ├── pagos/           # Módulo de Control de Pagos.
+│   │   │   ├── registrar_pago.php         # Procesa y registra los pagos en la BD.\n│   │   ├── generar_recibo.php           # Genera el recibo en PDF.\n│   │   ├── historial_pagos.php          # Lista el historial de pagos por cliente.\n│   │   └── alertas_pagos.php            # Muestra alertas de vencimientos y pagos próximos.
+│   │   └── simulador/       # Simulador de cuotas.
+│   │       └── simulador_cuotas.php
+│   ├── lib/                 # Librerías de terceros (por ejemplo, FPDF para generar PDFs).\n│       └── fpdf/\n│           └── fpdf.php
+│   └── helpers/             # Funciones y utilidades generales (ej. funciones de validación, formateo, etc.).\n        └── functions.php
+├── public/                  # Archivos públicos accesibles desde la web (index, CSS, JS, imágenes, etc.).
+│   ├── index.php            # Punto de entrada de la aplicación.\n   ├── css/\n   ├── js/\n   └── images/
+└── tests/                   # Pruebas unitarias y funcionales del sistema.
+    └── ... 
