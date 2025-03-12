@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-03-2025 a las 06:45:11
+-- Tiempo de generación: 12-03-2025 a las 07:13:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -85,8 +85,16 @@ CREATE TABLE `creditos` (
   `cuotas` int(10) NOT NULL,
   `fecha_inicio` date NOT NULL,
   `fecha_vencimiento` date NOT NULL,
-  `estado` enum('Activo','Vencido','Pagado') DEFAULT 'Activo'
+  `estado` enum('Activo','Vencido','Pagado') DEFAULT 'Activo',
+  `frecuencia` enum('mensual','semanal','quincenal') NOT NULL DEFAULT 'mensual'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `creditos`
+--
+
+INSERT INTO `creditos` (`id`, `cliente_id`, `monto`, `cuotas`, `fecha_inicio`, `fecha_vencimiento`, `estado`, `frecuencia`) VALUES
+(1, 1, 100000.00, 1, '2025-03-21', '2025-04-21', 'Activo', 'mensual');
 
 -- --------------------------------------------------------
 
@@ -141,7 +149,7 @@ ALTER TABLE `clientes`
 -- AUTO_INCREMENT de la tabla `creditos`
 --
 ALTER TABLE `creditos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restricciones para tablas volcadas
