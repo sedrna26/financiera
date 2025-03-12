@@ -5,7 +5,7 @@ require_once '../../config/database.php';
 // Consulta para obtener todos los créditos junto con datos del cliente
 $query = "SELECT c.id, cl.nombre, cl.apellido, c.monto, c.cuotas, c.fecha_inicio, c.fecha_vencimiento, c.estado 
           FROM creditos c 
-          INNER JOIN clientes cl ON c.cliente_id = cl.id";
+          INNER JOIN clientes cl ON c.cliente_id = cl.id_cliente";
 
 // Si se realiza una búsqueda, se filtra por nombre, apellido o número de crédito
 if (isset($_GET['buscar']) && !empty($_GET['buscar'])) {
@@ -21,7 +21,7 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <title>Listado de Créditos</title>
-    <link rel="stylesheet" href="../../public/css/style.css">
+    <link rel="stylesheet" href="../../../style/style.css">
 </head>
 
 <body>
@@ -31,7 +31,7 @@ $result = $conn->query($query);
     <a href="registrar_credito.php">Registrar Nuevo Crédito</a>
 
     <!-- Formulario de búsqueda -->
-    <form action="index.php" method="GET">
+    <form action="index_creditos.php" method="GET">
         <input type="text" name="buscar" placeholder="Buscar crédito..." value="<?php echo isset($_GET['buscar']) ? $_GET['buscar'] : ''; ?>">
         <button type="submit">Buscar</button>
     </form>

@@ -5,9 +5,10 @@ require_once '../../config/database.php';
 // Obtener parámetros de búsqueda y filtro
 $buscar = isset($_GET['buscar']) ? trim($_GET['buscar']) : '';
 $estado = isset($_GET['estado']) ? $_GET['estado'] : '';
+$mensaje = isset($_GET['mensaje']) ? $_GET['mensaje'] : '';
 
 // Consulta base
-$query = "SELECT id, nombre, apellido, dni, domicilio, telefono, estado 
+$query = "SELECT id_cliente, nombre, apellido, dni, domicilio, telefono, estado 
           FROM clientes 
           WHERE 1";
 
@@ -33,22 +34,26 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <title>Listado de Clientes</title>
-    <link rel="stylesheet" href="../../public/css/style.css">
+    <link rel="stylesheet" href="../../../style/style.css">
 </head>
 
 <body>
     <h1>Listado de Clientes</h1>
 
+    <?php if ($mensaje): ?>
+        <p style="color:green;"><?php echo htmlspecialchars($mensaje); ?></p>
+    <?php endif; ?>
+
     <!-- Filtros por estado -->
     <div class="filtros-estado">
-        <a href="index.php" class="<?php echo empty($estado) ? 'activo' : ''; ?>">Todos</a>
-        <a href="index.php?estado=Activo" class="<?php echo $estado == 'Activo' ? 'activo' : ''; ?>">Activos (<?php echo contar_clientes('Activo'); ?>)</a>
-        <a href="index.php?estado=Deudor" class="<?php echo $estado == 'Deudor' ? 'activo' : ''; ?>">Deudores (<?php echo contar_clientes('Deudor'); ?>)</a>
-        <a href="index.php?estado=Inactivo" class="<?php echo $estado == 'Inactivo' ? 'activo' : ''; ?>">Inactivos (<?php echo contar_clientes('Inactivo'); ?>)</a>
+        <a href="index_clientes.php" class="<?php echo empty($estado) ? 'activo' : ''; ?>">Todos</a>
+        <a href="index_clientes.php?estado=Activo" class="<?php echo $estado == 'Activo' ? 'activo' : ''; ?>">Activos (<?php echo contar_clientes('Activo'); ?>)</a>
+        <a href="index_clientes.php?estado=Deudor" class="<?php echo $estado == 'Deudor' ? 'activo' : ''; ?>">Deudores (<?php echo contar_clientes('Deudor'); ?>)</a>
+        <a href="index_clientes.php?estado=Inactivo" class="<?php echo $estado == 'Inactivo' ? 'activo' : ''; ?>">Inactivos (<?php echo contar_clientes('Inactivo'); ?>)</a>
     </div>
 
     <!-- Formulario de búsqueda -->
-    <form action="index.php" method="GET">
+    <form action="index_clientes.php" method="GET">
         <input type="text" name="buscar" placeholder="Buscar cliente..." value="<?php echo htmlspecialchars($buscar); ?>">
         <input type="hidden" name="estado" value="<?php echo htmlspecialchars($estado); ?>">
         <button type="submit">Buscar</button>
@@ -75,7 +80,7 @@ $result = $conn->query($query);
             <?php if ($result->num_rows > 0): ?>
                 <?php while ($cliente = $result->fetch_assoc()): ?>
                     <tr class="estado-<?php echo strtolower($cliente['estado']); ?>">
-                        <td><?php echo $cliente['id']; ?></td>
+                        <td><?php echo $cliente['id_cliente']; ?></td>
                         <td><?php echo htmlspecialchars($cliente['nombre']); ?></td>
                         <td><?php echo htmlspecialchars($cliente['apellido']); ?></td>
                         <td><?php echo $cliente['dni']; ?></td>
@@ -87,8 +92,8 @@ $result = $conn->query($query);
                             </span>
                         </td>
                         <td>
-                            <a href="editar_cliente.php?id=<?php echo $cliente['id']; ?>" class="btn-editar">Editar</a>
-                            <a href="detalle_cliente.php?id=<?php echo $cliente['id']; ?>" class="btn-ver">Ver</a>
+                            <a href="detalle_cliente.php?id_cliente=<?php echo $cliente['id_cliente']; ?>" class="btn-ver">Ver</a>
+                            <a href="editar_cliente.php?id_cliente=<?php echo $cliente['id_cliente']; ?>" class="btn-editar">Editar</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>

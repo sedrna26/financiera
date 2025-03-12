@@ -3,22 +3,24 @@
 require_once '../../config/database.php';
 
 // Verificar que se haya enviado el ID del cliente
-if (!isset($_GET['id'])) {
-    header("Location: index.php?error=No se especificó el cliente");
+if (!isset($_GET['id_cliente'])) {
+    header("Location: index_clientes.php?error=No se especificó el cliente");
     exit();
 }
 
-$cliente_id = intval($_GET['id']);
+$cliente_id = intval($_GET['id_cliente']);
 
 // Obtener datos del cliente
-$query = "SELECT id, nombre, apellido, dni, domicilio, telefono, estado FROM clientes WHERE id = ?";
+$query = "SELECT id_cliente, nombre, apellido, dni, domicilio, telefono, estado 
+          FROM clientes 
+          WHERE id_cliente = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $cliente_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows == 0) {
-    header("Location: index.php?error=Cliente no encontrado");
+    header("Location: index_clientes.php?error=Cliente no encontrado");
     exit();
 }
 
@@ -40,12 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (empty($error)) {
         // Actualizar los datos del cliente en la base de datos
-        $update_query = "UPDATE clientes SET nombre = ?, apellido = ?, dni = ?, domicilio = ?, telefono = ? WHERE id = ?";
+        $update_query = "UPDATE clientes 
+                         SET nombre = ?, apellido = ?, dni = ?, domicilio = ?, telefono = ? 
+                         WHERE id_cliente = ?";
         $stmt_update = $conn->prepare($update_query);
         $stmt_update->bind_param("sssssi", $nombre, $apellido, $dni, $domicilio, $telefono, $cliente_id);
 
         if ($stmt_update->execute()) {
-            header("Location: index.php?mensaje=Cliente actualizado exitosamente");
+            header("Location: index_clientes.php?mensaje=Cliente actualizado exitosamente");
             exit();
         } else {
             $error = "Error al actualizar el cliente: " . $conn->error;
@@ -59,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Editar Cliente</title>
-    <link rel="stylesheet" href="../../public/css/style.css">
+    <link rel="stylesheet" href="../../../style/style.css">
 </head>
 
 <body>
@@ -69,6 +73,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <p style="color:red;"><?php echo $error; ?></p>
     <?php endif; ?>
 
-    <form action="editar_cliente.php?id=<?php echo $cliente_id; ?>" method="POST">
+    <form action="editar_cliente.php?id_cliente=<?php echo $cliente_id; ?>" method="POST">
         <label for="nombre">Nombre:</label>
-        <input type="text
+        <input type="text" name="nombre" id="nombre" value="<?php echo htmlspecialchars($cliente['nombre']); ?>" required><br><br>
+
+        <label for="apellido">Apellido:</label>
+        <input type="text" name="apellido" id="apellido" value="<?php echo htmlspecialchars($cliente['apellido']); ?>" required><br><br>
+
+        <label for="dni">DNI:</label>
+        <input type="text" name="dni" id="dni" value="<?php echo htmlspecialchars($cliente['dni']); ?>" required><br><br>
+
+        <label for="domicilio">Domicilio:</label>
+        <input type="text" name="domicilio" id="domicilio" value="<?php echo htmlspecialchars($cliente['domicilio']); ?>"><br><br>
+
+        <label for="telefono">Teléfono:</label>
+        <input type="text" name="telefono" id="telefono" value="<?php echo htmlspecialchars($cliente['telefono']); ?>"><br><br>
+
+        <button type="submit">Actualizar Cliente</button>
+    </form>
+    <br>
+    <a href="index_clientes.php">Volver al listado de clientes</a>
+</body>
+
+</html>

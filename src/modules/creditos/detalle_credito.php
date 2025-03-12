@@ -34,7 +34,7 @@ $credito = $result->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <title>Detalle de Crédito</title>
-    <link rel="stylesheet" href="../../public/css/style.css">
+    <link rel="stylesheet" href="../../../style/style.css">
 </head>
 
 <body>
@@ -54,7 +54,7 @@ $credito = $result->fetch_assoc();
 
     <br>
     <a href="editar_credito.php?id=<?php echo $credito['id']; ?>">Editar Crédito</a><br><br>
-    <a href="index.php">Volver al listado de créditos</a>
+    <a href="index_creditos.php">Volver al listado de créditos</a>
 </body>
 
 </html>

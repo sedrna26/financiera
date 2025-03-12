@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Registrar Nuevo Cliente</title>
-    <link rel="stylesheet" href="../../public/css/style.css">
+    <link rel="stylesheet" href="../../../style/style.css">
 </head>
 
 <body>
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <button type="submit">Registrar Cliente</button>
     </form>
     <br>
-    <a href="index.php">Volver al listado de clientes</a>
+    <a href="index_clientes.php">Volver al listado de clientes</a>
 </body>
 
 </html>

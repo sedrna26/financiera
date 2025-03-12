@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-03-2025 a las 07:45:53
+-- Tiempo de generación: 12-03-2025 a las 06:45:11
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -42,7 +42,7 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `dni`, `domicilio`, `telefono`, `estado`) VALUES
-(1, 'Gabriela Deolinda ', 'Montaña', 35938746, 'MZA D CASA 22 S/N, B° HUARPE, POCITO, SAN JUAN', 2646047760, 'Activo'),
+(1, 'Gabriela Deolinda', 'Montaña', 35938746, 'MZA D CASA 22 S/N, B° HUARPE, POCITO, SAN JUAN', 2646047760, 'Activo'),
 (2, 'Maria Laura', 'Muñoz', 10808262, 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', 2645619594, 'Activo'),
 (3, 'Lucia Alicia', 'Muñoz', 11839254, 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', 2645619594, 'Activo'),
 (4, 'Eugenia Belen', 'Carrizo Mercado', 35510951, 'MZA E CASA 5, B° HUARPE, POCITO, SAN JUAN', 2645041015, 'Activo'),
@@ -75,6 +75,22 @@ INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `dni`, `domicilio`, 
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `creditos`
+--
+
+CREATE TABLE `creditos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `cliente_id` int(10) UNSIGNED NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `cuotas` int(10) NOT NULL,
+  `fecha_inicio` date NOT NULL,
+  `fecha_vencimiento` date NOT NULL,
+  `estado` enum('Activo','Vencido','Pagado') DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `pagos`
 --
 
@@ -84,23 +100,6 @@ CREATE TABLE `pagos` (
   `fecha_pago` date NOT NULL,
   `monto_pagado` float DEFAULT NULL,
   `estado` enum('Pagado','Impago') DEFAULT 'Impago',
-  `fecha_vencimiento` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `prestamos`
---
-
-CREATE TABLE `prestamos` (
-  `id_prestamo` int(11) UNSIGNED NOT NULL,
-  `id_cliente` int(11) UNSIGNED NOT NULL,
-  `fecha_entrega` date NOT NULL,
-  `monto_prestado` float NOT NULL,
-  `cantidad_cuotas` int(11) NOT NULL,
-  `monto_cuota` int(11) NOT NULL,
-  `estado` enum('Activo','Finalizado','Vencido') DEFAULT 'Activo',
   `fecha_vencimiento` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -115,18 +114,18 @@ ALTER TABLE `clientes`
   ADD PRIMARY KEY (`id_cliente`);
 
 --
+-- Indices de la tabla `creditos`
+--
+ALTER TABLE `creditos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cliente_id` (`cliente_id`);
+
+--
 -- Indices de la tabla `pagos`
 --
 ALTER TABLE `pagos`
   ADD PRIMARY KEY (`id_pago`),
   ADD KEY `id_prestamo` (`id_prestamo`);
-
---
--- Indices de la tabla `prestamos`
---
-ALTER TABLE `prestamos`
-  ADD PRIMARY KEY (`id_prestamo`),
-  ADD KEY `id_cliente` (`id_cliente`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -139,14 +138,20 @@ ALTER TABLE `clientes`
   MODIFY `id_cliente` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
--- AUTO_INCREMENT de la tabla `prestamos`
+-- AUTO_INCREMENT de la tabla `creditos`
 --
-ALTER TABLE `prestamos`
-  MODIFY `id_prestamo` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `creditos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `creditos`
+--
+ALTER TABLE `creditos`
+  ADD CONSTRAINT `creditos_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id_cliente`);
 
 --
 -- Filtros para la tabla `pagos`
@@ -154,13 +159,6 @@ ALTER TABLE `prestamos`
 ALTER TABLE `pagos`
   ADD CONSTRAINT `fk_pagos_prestamos` FOREIGN KEY (`id_prestamo`) REFERENCES `prestamos` (`id_prestamo`),
   ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`id_prestamo`) REFERENCES `prestamos` (`id_prestamo`);
-
---
--- Filtros para la tabla `prestamos`
---
-ALTER TABLE `prestamos`
-  ADD CONSTRAINT `fk_prestamos_clientes` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`),
-  ADD CONSTRAINT `prestamos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
