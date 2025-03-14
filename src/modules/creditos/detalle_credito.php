@@ -11,10 +11,11 @@ if (!isset($_GET['id'])) {
 $credito_id = intval($_GET['id']);
 
 // Consulta para obtener los datos del crédito y del cliente asociado
+
 $query = "SELECT c.id, c.cliente_id, c.monto, c.cuotas, c.fecha_inicio, c.fecha_vencimiento, c.estado, 
                  cl.nombre, cl.apellido, cl.dni 
           FROM creditos c 
-          INNER JOIN clientes cl ON c.cliente_id = cl.id 
+          INNER JOIN clientes cl ON c.cliente_id = cl.id_cliente 
           WHERE c.id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $credito_id);

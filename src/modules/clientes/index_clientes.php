@@ -92,7 +92,7 @@ $result = $conn->query($query);
                             </span>
                         </td>
                         <td>
-                            <a href="detalle_cliente.php?id_cliente=<?php echo $cliente['id_cliente']; ?>" class="btn-ver">Ver</a>
+                        <a href="detalle_cliente.php?id_cliente=<?php echo $cliente['id_cliente']; ?>" class="btn-ver">Ver</a>
                             <a href="editar_cliente.php?id_cliente=<?php echo $cliente['id_cliente']; ?>" class="btn-editar">Editar</a>
                         </td>
                     </tr>

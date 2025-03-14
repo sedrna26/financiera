@@ -63,6 +63,7 @@ $result = $conn->query($query);
                         <td>
                             <a href="editar_credito.php?id=<?php echo $credito['id']; ?>">Editar</a>
                             <a href="detalle_credito.php?id=<?php echo $credito['id']; ?>">Ver</a>
+                            <a href="eliminar_credito.php?id=<?= $credito['id'] ?>" onclick="return confirm('¿Eliminar crédito?')">Eliminar</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>

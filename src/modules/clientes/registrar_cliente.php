@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $domicilio = $conn->real_escape_string(trim($_POST['domicilio']));
     $telefono = $conn->real_escape_string(trim($_POST['telefono']));
 
-    // Estado por defecto: Activo
-    $estado = 'Activo';
+    // Estado por defecto: Inactivo
+    $estado = 'Inactivo';
 
     // Validación de campos obligatorios
     if (empty($nombre) || empty($apellido) || empty($dni)) {

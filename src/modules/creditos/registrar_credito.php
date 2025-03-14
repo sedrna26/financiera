@@ -30,18 +30,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt_insert->bind_param("idissss", $cliente_id, $monto, $cuotas, $fecha_inicio, $fecha_vencimiento, $frecuencia, $estado);
 
         if ($stmt_insert->execute()) {
-            $mensaje = "Crédito registrado exitosamente.";
-        } else {
-            $error = "Error al registrar el crédito: " . $conn->error;
+            // Actualizar estado del cliente a "Activo"
+            $update_cliente = "UPDATE clientes SET estado = 'Activo' WHERE id_cliente = ?";
+            $stmt_update = $conn->prepare($update_cliente);
+            $stmt_update->bind_param("i", $cliente_id); // Asegúrate de que $cliente_id está definido
+            $stmt_update->execute();
+        
+            // Verificar errores en la actualización
+            if ($stmt_update->affected_rows === 0) {
+                $error = "Error al actualizar el estado del cliente.";
+            } else {
+                $mensaje = "Crédito registrado exitosamente.";
+            }
         }
     }
 }
 
 // Función para calcular la fecha de vencimiento
-function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia)
-{
+function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia) {
+    if ($cuotas == 1) {
+        return $fecha_inicio; // Misma fecha si es 1 cuota
+    }
+
     $fecha_actual = $fecha_inicio;
-    for ($i = 0; $i < $cuotas; $i++) {
+    for ($i = 0; $i < $cuotas - 1; $i++) { // Restar 1 iteración
         switch ($frecuencia) {
             case 'semanal':
                 $fecha_actual = date('Y-m-d', strtotime($fecha_actual . ' +7 days'));
@@ -56,7 +68,6 @@ function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia)
     }
     return $fecha_actual;
 }
-
 // Obtener la lista de clientes
 $buscar_cliente = isset($_GET['buscar_cliente']) ? $conn->real_escape_string($_GET['buscar_cliente']) : '';
 $clientes_query = "SELECT id_cliente, nombre, apellido, dni FROM clientes";
@@ -105,18 +116,24 @@ $clientes_result = $conn->query($clientes_query);
         <label for="monto">Monto:</label>
         <input type="number" name="monto" id="monto" step="0.01" required><br><br>
 
-        <label for="cuotas">Cuotas:</label>
-        <input type="number" name="cuotas" id="cuotas" required><br><br>
+        
 
-        <label for="fecha_inicio">Fecha de Inicio:</label>
-        <input type="date" name="fecha_inicio" id="fecha_inicio" required><br><br>
 
         <label for="frecuencia">Frecuencia:</label>
-        <select name="frecuencia" id="frecuencia" required>
+        <select name="frecuencia" id="frecuencia" required onchange="actualizarCuotas()">
             <option value="mensual">Mensual</option>
             <option value="semanal">Semanal</option>
             <option value="quincenal">Quincenal</option>
         </select><br><br>
+
+        <label for="cuotas">Cuotas:</label>
+        <input type="number" name="cuotas" id="cuotas" min="1" required onchange="calcularVencimiento()"><br><br>
+
+        <label for="fecha_inicio">Fecha de Inicio:</label>
+        <input type="date" name="fecha_inicio" id="fecha_inicio" required onchange="calcularVencimiento()"><br><br>
+
+        <label for="fecha_vencimiento">Fecha de Vencimiento:</label>
+        <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" readonly><br><br>
 
         <input type="hidden" name="estado" value="Activo">
 
@@ -126,5 +143,52 @@ $clientes_result = $conn->query($clientes_query);
     <br>
     <a href="index_creditos.php">Volver al listado de créditos</a>
 </body>
+<script>
+function actualizarCuotas() {
+    const frecuencia = document.getElementById('frecuencia').value;
+    let maxCuotas = 12; // Valor por defecto
+    switch (frecuencia) {
+        case 'semanal':
+            maxCuotas = 52; // 1 año de semanas
+            break;
+        case 'quincenal':
+            maxCuotas = 24; // 1 año de quincenas
+            break;
+        case 'mensual':
+            maxCuotas = 12; // 1 año de meses
+            break;
+    }
+    document.getElementById('cuotas').max = maxCuotas;
+}
 
+function calcularVencimiento() {
+    const fechaInicio = document.getElementById('fecha_inicio').value;
+    const cuotas = parseInt(document.getElementById('cuotas').value);
+    const frecuencia = document.getElementById('frecuencia').value;
+
+    if (!fechaInicio || cuotas < 1) return;
+
+    // Si es 1 cuota, fecha de vencimiento = fecha de inicio
+    if (cuotas === 1) {
+        document.getElementById('fecha_vencimiento').value = fechaInicio;
+        return;
+    }
+
+    // Calcular fecha según frecuencia y cuotas
+    const fecha = new Date(fechaInicio);
+    switch (frecuencia) {
+        case 'semanal':
+            fecha.setDate(fecha.getDate() + (7 * (cuotas - 1)));
+            break;
+        case 'quincenal':
+            fecha.setDate(fecha.getDate() + (15 * (cuotas - 1)));
+            break;
+        case 'mensual':
+            fecha.setMonth(fecha.getMonth() + (cuotas - 1));
+            break;
+    }
+
+    document.getElementById('fecha_vencimiento').value = fecha.toISOString().split('T')[0];
+}
+</script>
 </html>
