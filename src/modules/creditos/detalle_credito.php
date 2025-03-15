@@ -13,7 +13,7 @@ $credito_id = intval($_GET['id']);
 // Consulta para obtener los datos del crédito y del cliente asociado
 
 $query = "SELECT c.id, c.cliente_id, c.monto, c.cuotas, c.fecha_inicio, c.fecha_vencimiento, c.estado, 
-                 cl.nombre, cl.apellido, cl.dni 
+                 cl.nombre, cl.apellido, cl.dni, cl.domicilio, cl.telefono 
           FROM creditos c 
           INNER JOIN clientes cl ON c.cliente_id = cl.id_cliente 
           WHERE c.id = ?";
@@ -54,6 +54,20 @@ $credito = $result->fetch_assoc();
     <p><strong>DNI:</strong> <?php echo $credito['dni']; ?></p>
 
     <br>
+   <!-- Botones para generar documentos -->
+<div style="margin: 20px 0;">
+    <a href="generar_documentos.php?tipo=pagare&cliente=<?= urlencode($credito['nombre'] . ' ' . $credito['apellido']) ?>&dni=<?= $credito['dni'] ?>&domicilio=<?= urlencode($credito['domicilio']) ?>&telefono=<?= $credito['telefono'] ?>&monto=<?= $credito['monto'] ?>&cuotas=<?= $credito['cuotas'] ?>" 
+       class="btn-pdf" 
+       target="_blank">
+        Generar Pagaré
+    </a>
+    
+    <a href="generar_documentos.php?tipo=contrato&cliente=<?= urlencode($credito['nombre'] . ' ' . $credito['apellido']) ?>&dni=<?= $credito['dni'] ?>&domicilio=<?= urlencode($credito['domicilio']) ?>&telefono=<?= $credito['telefono'] ?>&monto=<?= $credito['monto'] ?>&cuotas=<?= $credito['cuotas'] ?>" 
+       class="btn-pdf" 
+       target="_blank">
+        Generar Contrato
+    </a>
+</div>
     <a href="editar_credito.php?id=<?php echo $credito['id']; ?>">Editar Crédito</a><br><br>
     <a href="index_creditos.php">Volver al listado de créditos</a>
 </body>

@@ -1,11 +1,12 @@
+
 <?php
-require_once '../../lib/fpdf/fpdf.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/financiera/lib/fpdf.php';
 
 class DocumentoPDF extends FPDF
 {
     function Header()
     {
-        $this->SetFont('Arial', 'B', 14);
+        $this->SetFont('times', 'B', 14);
         $this->Cell(0, 10, 'Documento Financiero', 0, 1, 'C');
         $this->Ln(5);
     }
@@ -13,23 +14,24 @@ class DocumentoPDF extends FPDF
     function Footer()
     {
         $this->SetY(-15);
-        $this->SetFont('Arial', 'I', 8);
+        $this->SetFont('Times', 'I', 8); // Usar Times New Roman en itálica
         $this->Cell(0, 10, 'Pagina ' . $this->PageNo(), 0, 0, 'C');
     }
 }
 
-// Recibir parámetros vía GET
-$tipo = isset($_GET['tipo']) ? $_GET['tipo'] : 'pagare';  // Valores: 'pagare' o 'contrato'
-$cliente = isset($_GET['cliente']) ? $_GET['cliente'] : 'Juan Perez';
-$dni = isset($_GET['dni']) ? $_GET['dni'] : '00000000';
-$domicilio = isset($_GET['domicilio']) ? $_GET['domicilio'] : 'Domicilio no especificado';
-$telefono = isset($_GET['telefono']) ? $_GET['telefono'] : '0000000000';
-$monto = isset($_GET['monto']) ? $_GET['monto'] : '10000';
-$cuotas = isset($_GET['cuotas']) ? $_GET['cuotas'] : '12';
+// Parámetros GET
+$tipo = $_GET['tipo'] ?? 'pagare';
+$cliente = $_GET['cliente'] ?? 'Cliente no especificado';
+$dni = $_GET['dni'] ?? '00000000';
+$domicilio = $_GET['domicilio'] ?? 'Domicilio no especificado';
+$telefono = $_GET['telefono'] ?? '0000000000';
+$monto = $_GET['monto'] ?? '10000';
+$cuotas = $_GET['cuotas'] ?? '12';
 
+// Crear PDF
 $pdf = new DocumentoPDF();
 $pdf->AddPage();
-$pdf->SetFont('Arial', '', 12);
+$pdf->SetFont('Times', '', 12); // Fuente normal para el cuerpo
 
 if ($tipo == 'pagare') {
     $texto = "PAGARE SIN PROTESTO\n\n";
@@ -52,6 +54,5 @@ if ($tipo == 'pagare') {
     $pdf->MultiCell(0, 10, "Tipo de documento no especificado.", 0, 'L');
 }
 
-$pdf->Ln(20);
-$pdf->Cell(0, 10, "Firma del Cliente: __________________", 0, 1, 'L');
 $pdf->Output();
+
