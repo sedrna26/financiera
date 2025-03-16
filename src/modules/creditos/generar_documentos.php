@@ -52,7 +52,8 @@ $fecha = $_GET['fecha'] ?? date('Y-m-d');
 
 $pdf = new DocumentoPDF();
 $pdf->AddPage();
-$pdf->SetFont('Times', '', 12);
+$pdf->SetFont('Times', '', 11);
+
 
 if ($tipo == 'pagare') {
     // Encabezado con formato original
