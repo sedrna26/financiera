@@ -122,43 +122,40 @@ if ($tipo == 'pagare') {
 
     // Cuerpo del contrato
     $pdf->SetFont('Times', '', 12);
-    $texto = "      Entre el Señor WASHINGTON HORACIO RODRIGUEZ D.N.I. N° 20.130.181, con domicilio en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan, en adelante denominado \"EL MUTUANTE\", y por la otra parte lo hace la/el señor/a ";
+    $texto = "      Entre el Señor WASHINGTON HORACIO RODRIGUEZ D.N.I. N° 20.130.181, con domicilio en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan, en adelante denominado \"EL MUTUANTE\", y por la otra parte lo hace la/el señor/a " . $cliente . " D.N.I. N° " . $dni . ", con domicilio en: " . $domicilio . ".- en adelante denominado \"EL MUTUARIO\", se celebra el presente contrato de mutuo o préstamo de dinero de acuerdo a las siguientes cláusulas:\n";
     $pdf->MultiCell(0, 8, $pdf->convertirTexto($texto), 0, 'J');
 
-    $pdf->SetFont('Times', '');
-    $pdf->Cell(0, 8, $pdf->convertirTexto($cliente), 0, 1);
-    $pdf->SetFont('Times', '');
 
-    $texto = "D.N.I. N° " . $dni . ", con domicilio en: " . $domicilio . ", en adelante denominado \"EL MUTUARIO\", se celebra el presente contrato de mutuo o préstamo de dinero de acuerdo a las siguientes cláusulas:\n\n";
-    $pdf->MultiCell(0, 8, $pdf->convertirTexto($texto), 0, 'L');
 
     // Cláusulas
     $clausulas = [
-        "PRIMERA. MONTO" => "El Mutuante da en préstamo al Mutuario la suma de PESOS " . number_format($monto, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto) . "), dinero que es entregado en sus propias manos...",
-        "SEGUNDA. DEVOLUCIÓN" => "El monto será devuelto en $cuotas cuotas con vencimientos el 10/03/2025, 10/04/2025 y 10/05/2025...",
-        "TERCERA. IMPUTACIÓN" => "El Mutuante imputará los pagos primero a gastos de mora, luego intereses...",
-        "QUINTA. GARANTÍA" => "En garantía de la restitución del préstamo, el Mutuario libra un pagaré por PESOS " . number_format($monto * 1.59, 2, ',', '.') . "...",
-        "SEXTA. JURISDICCIÓN" => "Los contratantes se someten a la Jurisdicción de los Tribunales Ordinarios de San Juan..."
+        "PRIMERA. MONTO" => "      El Mutuante da en préstamo al Mutuario la suma de $" . number_format($monto, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto) . "), dinero que es entregado en sus propias manos, sirviendo el presente de suficiente recibo y carta de pago. – Dicho monto, será devuelto en $cuotas cuota/s con vencimiento el (fechas de pago) por la suma de (monto de cada cuota). El monto consignado up-supra, será abonado en el domicilio del mutuante, sito en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan y/o en el lugar que a posteriori se denunciare. -\n     Los montos estipulados reconocen el pacto de interés de financiación y cumplido que fuera el pago, ambas partes no tienen nada más que reclamar por ningún concepto. -",
+
+        "SEGUNDA. IMPUTACIÓN" => "      El Mutuante imputará los pagos del Mutuario, primero a cancelar los gastos originados en la mora, luego a los intereses punitorios y compensatorios del monto en mora, y por último a la cancelación de la cuota atrasada.",
+        "TERCERA. GARANTÍA" => "        En garantía de la restitución del préstamo, el Mutuario libra a favor del Mutuante un pagaré por PESOS (total a devolver) el cual será restituido al cancelarse todas las cuotas adeudadas. En caso de ser necesario accionar judicialmente, el Mutuante se obliga a accionar por el pagaré o por el presente contrato, pero no por ambos. -",
+        "CUARTA. JURISDICCIÓN" => "     Los contratantes se someten para cualquier divergencia que pudiera surgir de la interpretación y aplicación del presente contrato, a la Jurisdicción de los Tribunales Ordinarios de la Provincia de San Juan, renunciando a cualquier otro fuero, o jurisdicción que pudiera corresponderles; en razón de la materia. -",
+        "QUINTA. DOMICILIO ESPECIAL" => "     Para todos los efectos legales los firmantes constituyen los siguientes domicilios especiales en los designados up-supra, lugar donde se tendrán por válidas todas las notificaciones y diligencias que se practiquen, aunque los interesados no vivan o no se encuentren en ellos. -",
+        "SEXTA. SELLOS" => "         El impuesto de sello correspondiente al presente contrato es abonado por el mutuante. -",
+
     ];
 
     foreach ($clausulas as $titulo => $contenido) {
-        $pdf->SetFont('Times', 'B');
+        $pdf->SetFont('Times', 'UI');
         $pdf->Cell(0, 8, $pdf->convertirTexto($titulo . ":"), 0, 1);
         $pdf->SetFont('Times', '');
-        $pdf->MultiCell(0, 8, $pdf->convertirTexto($contenido), 0, 'L');
+        $pdf->MultiCell(0, 8, $pdf->convertirTexto($contenido), 0, 'J');
         $pdf->Ln(4);
     }
 
-    // Fecha final
-    $pdf->SetY(270);
-    $fechaContrato = $pdf->convertirTexto("Se firman dos ejemplares de un mismo tenor y a un sólo efecto, en la Ciudad de San Juan, a los ")
+
+    $fechaContrato = $pdf->convertirTexto("       Se firman dos ejemplares de un mismo tenor y a un sólo efecto, en la Ciudad de San Juan, a los ")
         . date('d', strtotime($fecha))
         . $pdf->convertirTexto(" días del mes de ")
         . $pdf->mesEnEspanol(date('n', strtotime($fecha)))
         . $pdf->convertirTexto(" del ")
-        . NumeroALetras::convertir(date('Y', strtotime($fecha))) . ".";
+        . NumeroALetras::convertir(date('Y', strtotime($fecha))) . ".-";
 
-    $pdf->MultiCell(0, 8, $fechaContrato, 0, 'L');
+    $pdf->MultiCell(0, 8, $fechaContrato, 0, 'J');
 }
 
 $pdf->Output();
