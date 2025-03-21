@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-03-2025 a las 20:11:30
+-- Tiempo de generación: 21-03-2025 a las 23:38:56
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -69,7 +69,7 @@ INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `dni`, `domicilio`, 
 (25, 'Tamara Caren', 'Rios Olguin', '44249164', 'B° SAN JOSE MZA J CASA 6, RAWSON, SAN JUAN', '2645530411', 'Inactivo'),
 (26, 'Emanuel Alejandro', 'Espina', '28967961', 'MZA C CASA 16, B° CONJUNTO 8, RAWSON, SAN JUAN', '2646110163', 'Inactivo'),
 (27, 'Eliana Valeria', 'Olguin', '32007497', 'B° HUARPES, MZA G CASA 22, POCITO, SAN JUAN', '2643176337', 'Inactivo'),
-(30, 'Jorge Cesar', 'Bacil', '11.142.487', 'DEVOTO OESTE 390, VILLA KRAUSE, RAWSON, SAN JUAN', '2644058489', 'Activo');
+(30, 'Jorge Cesar', 'Bacil', '11142487', 'DEVOTO OESTE 390, VILLA KRAUSE, RAWSON, SAN JUAN', '2644058489', 'Activo');
 
 -- --------------------------------------------------------
 
@@ -81,6 +81,8 @@ CREATE TABLE `creditos` (
   `id` int(10) UNSIGNED NOT NULL,
   `cliente_id` int(10) UNSIGNED NOT NULL,
   `monto` decimal(10,2) NOT NULL,
+  `monto_total` decimal(10,2) NOT NULL,
+  `monto_cuota` decimal(10,2) NOT NULL,
   `cuotas` int(10) NOT NULL,
   `fecha_inicio` date NOT NULL,
   `fecha_vencimiento` date NOT NULL,
@@ -92,13 +94,14 @@ CREATE TABLE `creditos` (
 -- Volcado de datos para la tabla `creditos`
 --
 
-INSERT INTO `creditos` (`id`, `cliente_id`, `monto`, `cuotas`, `fecha_inicio`, `fecha_vencimiento`, `estado`, `frecuencia`) VALUES
-(4, 1, 100000.00, 1, '2025-03-21', '2025-03-21', 'Activo', 'mensual'),
-(5, 4, 100000.00, 1, '2025-04-12', '2025-04-12', 'Activo', 'mensual'),
-(6, 9, 100000.00, 1, '2025-04-12', '2025-05-12', 'Activo', 'mensual'),
-(7, 15, 200000.00, 3, '2025-03-05', '2025-05-05', 'Activo', 'mensual'),
-(8, 11, 150000.00, 2, '2025-04-18', '2025-06-18', 'Activo', 'mensual'),
-(9, 30, 1060000.00, 1, '2025-04-02', '2025-04-02', 'Activo', 'quincenal');
+INSERT INTO `creditos` (`id`, `cliente_id`, `monto`, `monto_total`, `monto_cuota`, `cuotas`, `fecha_inicio`, `fecha_vencimiento`, `estado`, `frecuencia`) VALUES
+(4, 1, 100000.00, 0.00, 0.00, 1, '2025-03-21', '2025-03-21', 'Activo', 'mensual'),
+(5, 4, 100000.00, 0.00, 0.00, 1, '2025-04-12', '2025-04-12', 'Activo', 'mensual'),
+(6, 9, 100000.00, 0.00, 0.00, 1, '2025-04-12', '2025-05-12', 'Activo', 'mensual'),
+(7, 15, 200000.00, 0.00, 0.00, 3, '2025-03-05', '2025-06-05', 'Activo', 'mensual'),
+(10, 30, 1020000.00, 0.00, 0.00, 1, '2025-04-07', '2025-04-22', 'Activo', 'quincenal'),
+(11, 4, 100000.00, 0.00, 0.00, 1, '2025-04-13', '2025-04-13', 'Activo', 'mensual'),
+(12, 11, 150000.00, 0.00, 0.00, 2, '2025-04-18', '2025-05-18', 'Activo', 'mensual');
 
 -- --------------------------------------------------------
 
@@ -153,7 +156,7 @@ ALTER TABLE `clientes`
 -- AUTO_INCREMENT de la tabla `creditos`
 --
 ALTER TABLE `creditos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Restricciones para tablas volcadas

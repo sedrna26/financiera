@@ -8,11 +8,31 @@ $mensaje = "";
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Recibir y sanitizar los datos del formulario
     $cliente_id = intval($_POST['cliente_id']);
-    $monto = floatval($_POST['monto']);
+    $monto_base = floatval($_POST['monto']);
+    $gastos_administrativos = 11000;
+    $tasa_interes = 0.25; // 25% mensual
     $cuotas = intval($_POST['cuotas']);
     $fecha_inicio = $conn->real_escape_string($_POST['fecha_inicio']);
     $frecuencia = $conn->real_escape_string($_POST['frecuencia']);
     $estado = 'Activo'; // Estado predeterminado
+        // Calcular interés según frecuencia y cuotas
+    switch ($frecuencia) {
+        case 'mensual':
+            $interes = $monto_base * $tasa_interes * $cuotas;
+            break;
+        case 'quincenal':
+            $interes = $monto_base * ($tasa_interes / 2) * $cuotas;
+            break;
+        case 'semanal':
+            $interes = $monto_base * ($tasa_interes / 4) * $cuotas;
+            break;
+}
+
+$monto_total = $monto_base + $interes + $gastos_administrativos;
+$monto_cuota = $monto_total / $cuotas;
+
+// Guardar en la base de datos el MONTO TOTAL (no el base)
+$insert_query = "INSERT INTO creditos (...) VALUES (?, ?, ...)";
 
     // Calcular la fecha de vencimiento según la frecuencia y la cantidad de cuotas
     $fecha_vencimiento = calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia);
@@ -48,12 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Función para calcular la fecha de vencimiento
 function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia) {
-    if ($cuotas == 1) {
-        return $fecha_inicio; // Misma fecha si es 1 cuota
-    }
-
     $fecha_actual = $fecha_inicio;
-    for ($i = 0; $i < $cuotas - 1; $i++) { // Restar 1 iteración
+    for ($i = 0; $i < $cuotas; $i++) { // Eliminar condicional de 1 cuota
         switch ($frecuencia) {
             case 'semanal':
                 $fecha_actual = date('Y-m-d', strtotime($fecha_actual . ' +7 days'));
@@ -144,6 +160,12 @@ $clientes_result = $conn->query($clientes_query);
     <a href="index_creditos.php">Volver al listado de créditos</a>
 </body>
 <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    calcularVencimiento(); // Ejecutar al cargar
+    actualizarCuotas(); // Establecer máximo de cuotas
+});
+
 function actualizarCuotas() {
     const frecuencia = document.getElementById('frecuencia').value;
     let maxCuotas = 12; // Valor por defecto
@@ -174,20 +196,20 @@ function calcularVencimiento() {
         return;
     }
 
-    // Calcular fecha según frecuencia y cuotas
     const fecha = new Date(fechaInicio);
-    switch (frecuencia) {
-        case 'semanal':
-            fecha.setDate(fecha.getDate() + (7 * (cuotas - 1)));
-            break;
-        case 'quincenal':
-            fecha.setDate(fecha.getDate() + (15 * (cuotas - 1)));
-            break;
-        case 'mensual':
-            fecha.setMonth(fecha.getMonth() + (cuotas - 1));
-            break;
+    for (let i = 0; i < cuotas - 1; i++) { // Restar 1 iteración
+        switch (frecuencia) {
+            case 'semanal':
+                fecha.setDate(fecha.getDate() + 7);
+                break;
+            case 'quincenal':
+                fecha.setDate(fecha.getDate() + 15);
+                break;
+            case 'mensual':
+                fecha.setMonth(fecha.getMonth() + 1);
+                break;
+        }
     }
-
     document.getElementById('fecha_vencimiento').value = fecha.toISOString().split('T')[0];
 }
 </script>

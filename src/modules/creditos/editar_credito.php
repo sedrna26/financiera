@@ -37,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $fecha_inicio = $conn->real_escape_string($_POST['fecha_inicio']);
     $frecuencia = $conn->real_escape_string($_POST['frecuencia']);
     $estado = $conn->real_escape_string($_POST['estado']);
+    $intereses = floatval($_POST['intereses']);
+    $gastos = floatval($_POST['gastos']);
 
     // Calcular la fecha de vencimiento según la frecuencia y la cantidad de cuotas
     $fecha_vencimiento = calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia);
@@ -63,10 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Función para calcular la fecha de vencimiento
-function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia)
-{
+function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia) {
     $fecha_actual = $fecha_inicio;
-    for ($i = 0; $i < $cuotas; $i++) {
+    for ($i = 0; $i < $cuotas; $i++) { // Eliminar condicional de 1 cuota
         switch ($frecuencia) {
             case 'semanal':
                 $fecha_actual = date('Y-m-d', strtotime($fecha_actual . ' +7 days'));
@@ -132,6 +133,12 @@ $clientes_result = $conn->query($clientes_query);
             <option value="semanal" <?php echo $credito['frecuencia'] == 'semanal' ? 'selected' : ''; ?>>Semanal</option>
             <option value="quincenal" <?php echo $credito['frecuencia'] == 'quincenal' ? 'selected' : ''; ?>>Quincenal</option>
         </select><br><br>
+
+        <label for="intereses">Tasa de Interés:</label>
+        <input type="number" name="intereses" id="intereses" step="0.01" required><br><br>
+
+        <label for="gastos">Gastos Administrativos:</label>
+        <input type="number" name="gastos" id="gastos" step="0.01" required><br><br>
 
         <label for="estado">Estado:</label>
         <select name="estado" id="estado" required>
