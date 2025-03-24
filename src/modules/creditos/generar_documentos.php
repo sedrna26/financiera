@@ -50,6 +50,7 @@ class DocumentoPDF extends FPDF
     }
 }
 
+
 // Parámetros GET
 $tipo = $_GET['tipo'] ?? 'pagare';
 $cliente = $_GET['cliente'] ?? 'Cliente no especificado';
@@ -60,6 +61,8 @@ $monto = $_GET['monto'] ?? '10000';
 $cuotas = $_GET['cuotas'] ?? 'Cuotas no especificadas';
 $fecha = $_GET['fecha'] ?? date('Y-m-d');
 $monto_total = $monto + ($monto * 0.25 * $cuotas) + 11000;
+$monto_cuota = $monto_total / $cuotas;
+
 
 $pdf = new DocumentoPDF();
 $pdf->AddPage();
@@ -70,7 +73,7 @@ $lineHeight = 11 * 0.6;
 if ($tipo == 'pagare') {
     // Encabezado con formato original
     $pdf->SetXY(-50, 30);
-    $pdf->Cell(0, $lineHeight, $pdf->convertirTexto('Por $' . number_format($monto, 2, ',', '.') . '-'), 0, 1, 'L');
+    $pdf->Cell(0, $lineHeight, $pdf->convertirTexto('Por $' . number_format($monto_total, 2, ',', '.') . '-'), 0, 1, 'L');
 
     // Fecha formateada
     $pdf->SetXY(40, 40);
@@ -130,7 +133,7 @@ if ($tipo == 'pagare') {
 
     // Cláusulas
     $clausulas = [
-        "PRIMERA. MONTO" => "      El Mutuante da en préstamo al Mutuario la suma de $" . number_format($monto, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto) . "), dinero que es entregado en sus propias manos, sirviendo el presente de suficiente recibo y carta de pago. – Dicho monto, será devuelto en $cuotas cuota/s con vencimiento el (fechas de pago) por la suma de (monto de cada cuota). El monto consignado up-supra, será abonado en el domicilio del mutuante, sito en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan y/o en el lugar que a posteriori se denunciare. -\n     Los montos estipulados reconocen el pacto de interés de financiación y cumplido que fuera el pago, ambas partes no tienen nada más que reclamar por ningún concepto. -",
+        "PRIMERA. MONTO" => "      El Mutuante da en préstamo al Mutuario la suma de $" . number_format($monto, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto) . "), dinero que es entregado en sus propias manos, sirviendo el presente de suficiente recibo y carta de pago. – Dicho monto, será devuelto en $cuotas cuota/s con vencimiento el (fechas de pago) por la suma de $" . number_format($monto_cuota, 2, ',', '.'). ". El monto consignado up-supra, será abonado en el domicilio del mutuante, sito en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan y/o en el lugar que a posteriori se denunciare. -\n     Los montos estipulados reconocen el pacto de interés de financiación y cumplido que fuera el pago, ambas partes no tienen nada más que reclamar por ningún concepto. -",
 
         "SEGUNDA. IMPUTACIÓN" => "      El Mutuante imputará los pagos del Mutuario, primero a cancelar los gastos originados en la mora, luego a los intereses punitorios y compensatorios del monto en mora, y por último a la cancelación de la cuota atrasada.",
         "TERCERA. GARANTÍA" => "        En garantía de la restitución del préstamo, el Mutuario libra a favor del Mutuante un pagaré por PESOS (total a devolver) el cual será restituido al cancelarse todas las cuotas adeudadas. En caso de ser necesario accionar judicialmente, el Mutuante se obliga a accionar por el pagaré o por el presente contrato, pero no por ambos. -",

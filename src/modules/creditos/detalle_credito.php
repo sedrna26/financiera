@@ -123,7 +123,7 @@ function formatearFecha($fecha) {
 
     <h2>Información del Crédito</h2>
     <p><strong>Nro de Crédito:</strong> <?php echo $credito['id']; ?></p>
-    <p><strong>Monto:</strong> <?php echo number_format($credito['monto'], 2); ?></p>
+    <p><strong>Monto:</strong> $<?php echo number_format($credito['monto'], 2); ?></p>
     <p><strong>Cuotas:</strong> <?php echo $credito['cuotas']; ?></p>
     <p><strong>Monto Total:</strong> <?php echo number_format($credito['monto'], 2); ?></p>
 <p><strong>Valor por cuota:</strong> <?php echo number_format($credito['monto'] / $credito['cuotas'], 2); ?></p>
