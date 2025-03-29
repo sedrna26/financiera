@@ -37,14 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $fecha_inicio = $conn->real_escape_string($_POST['fecha_inicio']);
     $frecuencia = $conn->real_escape_string($_POST['frecuencia']);
     $estado = $conn->real_escape_string($_POST['estado']);
-    $intereses = floatval($_POST['intereses']);
-    $gastos = floatval($_POST['gastos']);
+    
+   
 
     // Calcular la fecha de vencimiento según la frecuencia y la cantidad de cuotas
     $fecha_vencimiento = calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia);
 
     // Validación de campos obligatorios
-    if (empty($cliente_id) || empty($monto) || empty($cuotas) || empty($fecha_inicio) || empty($fecha_vencimiento) || empty($frecuencia) || empty($estado)) {
+    if (empty($cliente_id) || empty($monto) || empty($cuotas) || empty($fecha_inicio) || empty($fecha_vencimiento) || empty($frecuencia)) {
         $error = "Todos los campos son obligatorios.";
     }
 

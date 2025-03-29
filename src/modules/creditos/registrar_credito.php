@@ -1,21 +1,26 @@
 <?php
-// Incluir la configuración de la base de datos
 require_once '../../config/database.php';
 
 $error = "";
 $mensaje = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Recibir y sanitizar los datos del formulario
+    // Sanitizar datos del formulario
     $cliente_id = intval($_POST['cliente_id']);
     $monto_base = floatval($_POST['monto']);
     $gastos_administrativos = 11000;
-    $tasa_interes = 0.25; // 25% mensual
+    $tasa_interes = 0.25;
     $cuotas = intval($_POST['cuotas']);
     $fecha_inicio = $conn->real_escape_string($_POST['fecha_inicio']);
     $frecuencia = $conn->real_escape_string($_POST['frecuencia']);
-    $estado = 'Activo'; // Estado predeterminado
-        // Calcular interés según frecuencia y cuotas
+    $estado = 'Activo';
+
+    // Validar campos obligatorios (corregido: $monto_base en lugar de $monto)
+    if (empty($cliente_id) || empty($monto_base) || $cuotas < 1 || empty($fecha_inicio) || empty($frecuencia)) {
+        $error = "Todos los campos son obligatorios.";
+    }
+
+    // Calcular interés según frecuencia
     switch ($frecuencia) {
         case 'mensual':
             $interes = $monto_base * $tasa_interes * $cuotas;
@@ -26,42 +31,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case 'semanal':
             $interes = $monto_base * ($tasa_interes / 4) * $cuotas;
             break;
-}
+        default:
+            $interes = 0;
+    }
 
-$monto_total = $monto_base + $interes + $gastos_administrativos;
-$monto_cuota = $monto_total / $cuotas;
-
-// Guardar en la base de datos el MONTO TOTAL (no el base)
-$insert_query = "INSERT INTO creditos (...) VALUES (?, ?, ...)";
-
-    // Calcular la fecha de vencimiento según la frecuencia y la cantidad de cuotas
+    $monto_total = $monto_base + $interes + $gastos_administrativos;
+    $monto_cuota = $monto_total / $cuotas;
     $fecha_vencimiento = calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia);
 
-    // Validación de campos obligatorios
-    if (empty($cliente_id) || empty($monto) || empty($cuotas) || empty($fecha_inicio) || empty($fecha_vencimiento) || empty($frecuencia)) {
-        $error = "Todos los campos son obligatorios.";
+    // Validar máximo 2 créditos activos (nueva validación)
+    if (empty($error)) {
+        $check_creditos = $conn->prepare("SELECT COUNT(*) FROM creditos WHERE cliente_id = ? AND estado = 'Activo'");
+        $check_creditos->bind_param("i", $cliente_id);
+        $check_creditos->execute();
+        $check_creditos->bind_result($total_creditos);
+        $check_creditos->fetch();
+        $check_creditos->close();
+        
+        if ($total_creditos >= 2) {
+            $error = "El cliente ya tiene 2 créditos activos.";
+        }
     }
 
     if (empty($error)) {
-        // Insertar los datos del crédito en la base de datos
-        $insert_query = "INSERT INTO creditos (cliente_id, monto, cuotas, fecha_inicio, fecha_vencimiento, frecuencia, estado) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Insertar crédito
+        $insert_query = "INSERT INTO creditos (cliente_id, monto, monto_total, monto_cuota, cuotas, fecha_inicio, fecha_vencimiento, frecuencia, estado) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt_insert = $conn->prepare($insert_query);
-        $stmt_insert->bind_param("idissss", $cliente_id, $monto, $cuotas, $fecha_inicio, $fecha_vencimiento, $frecuencia, $estado);
+        $stmt_insert->bind_param(
+            "idddissss", 
+            $cliente_id, 
+            $monto_base, 
+            $monto_total,
+            $monto_cuota,
+            $cuotas,
+            $fecha_inicio,
+            $fecha_vencimiento,
+            $frecuencia,
+            $estado
+        );
 
         if ($stmt_insert->execute()) {
-            // Actualizar estado del cliente a "Activo"
-            $update_cliente = "UPDATE clientes SET estado = 'Activo' WHERE id_cliente = ?";
+            // Actualizar estado solo si es necesario (corregido)
+            $update_cliente = "UPDATE clientes SET estado = 'Activo' WHERE id_cliente = ? AND estado != 'Activo'";
             $stmt_update = $conn->prepare($update_cliente);
-            $stmt_update->bind_param("i", $cliente_id); // Asegúrate de que $cliente_id está definido
+            $stmt_update->bind_param("i", $cliente_id);
             $stmt_update->execute();
-        
-            // Verificar errores en la actualización
-            if ($stmt_update->affected_rows === 0) {
-                $error = "Error al actualizar el estado del cliente.";
-            } else {
-                $mensaje = "Crédito registrado exitosamente.";
-            }
+
+            $mensaje = "Crédito registrado exitosamente.";
+        } else {
+            $error = "Error al registrar el crédito: " . $conn->error;
         }
     }
 }
@@ -85,6 +104,11 @@ function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia) {
     return $fecha_actual;
 }
 // Obtener la lista de clientes
+if (isset($clientes_result)) {
+    $clientes_result->free(); // Liberar resultados anteriores
+}
+
+$clientes_query = "SELECT id_cliente, nombre, apellido, dni FROM clientes";
 $buscar_cliente = isset($_GET['buscar_cliente']) ? $conn->real_escape_string($_GET['buscar_cliente']) : '';
 $clientes_query = "SELECT id_cliente, nombre, apellido, dni FROM clientes";
 if (!empty($buscar_cliente)) {
