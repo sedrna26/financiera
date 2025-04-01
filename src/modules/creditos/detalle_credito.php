@@ -1,4 +1,5 @@
 <?php
+
 // Incluir la configuración de la base de datos
 require_once '../../config/database.php';
 
@@ -11,7 +12,7 @@ if (!isset($_GET['id'])) {
 $credito_id = intval($_GET['id']);
 
 // Consulta para obtener los datos del crédito y del cliente asociado
-$query = "SELECT c.id, c.cliente_id, c.monto, c.cuotas, c.fecha_inicio, c.fecha_vencimiento, c.estado, c.frecuencia,
+$query = "SELECT c.id, c.cliente_id, c.monto, c.cuotas, c.fecha_inicio, c.fecha_vencimiento, c.estado, c.frecuencia, c.monto_total, c.monto_cuota,
                  cl.nombre, cl.apellido, cl.dni, cl.domicilio, cl.telefono 
           FROM creditos c 
           INNER JOIN clientes cl ON c.cliente_id = cl.id_cliente 
@@ -28,37 +29,6 @@ if ($result->num_rows == 0) {
 
 $credito = $result->fetch_assoc();
 
-// Función para calcular el valor de las cuotas con interés y gastos administrativos
-function calcularCuotas($monto, $cuotas, $frecuencia) {
-    $gastosAdministrativos = 11000; // Gastos administrativos fijos
-
-    // Calcular el interés según la frecuencia
-    switch ($frecuencia) {
-        case 'mensual':
-            $interes = 0.25; // 25% de interés mensual
-            break;
-        case 'quincenal':
-            $interes = 0.125; // 12.5% de interés quincenal
-            break;
-        case 'semanal':
-            $interes = 0.0625; // 6.25% de interés semanal
-            break;
-        default:
-            $interes = 0.25; // Por defecto, mensual
-            break;
-    }
-
-    // Calcular el interés total sobre el monto
-    $interesTotal = $monto * $interes;
-
-    // Calcular el monto total a pagar (capital + interés + gastos administrativos)
-    $montoTotal = $monto + $interesTotal + $gastosAdministrativos;
-
-    // Calcular el valor de cada cuota
-    $valorCuota = $montoTotal / $cuotas;
-
-    return $valorCuota;
-}
 
 // Obtener los pagos realizados
 $pagos_query = "SELECT * FROM pagos WHERE id_credito = ?";
@@ -71,11 +41,12 @@ while ($pago = $pagos_result->fetch_assoc()) {
     $pagos[] = $pago;
 }
 
-// Calcular el valor de cada cuota
-$valorCuota = calcularCuotas($credito['monto'], $credito['cuotas'], $credito['frecuencia']);
+// // Calcular el valor de cada cuota
+// $valorCuota = calcularCuotas($credito['monto'], $credito['cuotas'], $credito['frecuencia']);
 
 // Función para calcular las fechas de pago
-function calcularFechasPago($fechaInicio, $cuotas, $frecuencia) {
+function calcularFechasPago($fechaInicio, $cuotas, $frecuencia)
+{
     $fechas = [];
     $fechaActual = $fechaInicio;
 
@@ -105,7 +76,8 @@ function calcularFechasPago($fechaInicio, $cuotas, $frecuencia) {
 $fechasPago = calcularFechasPago($credito['fecha_inicio'], $credito['cuotas'], $credito['frecuencia']);
 
 // Función para formatear fechas en dd/mm/aaaa
-function formatearFecha($fecha) {
+function formatearFecha($fecha)
+{
     return date('d/m/Y', strtotime($fecha));
 }
 ?>
@@ -123,30 +95,29 @@ function formatearFecha($fecha) {
 
     <h2>Información del Crédito</h2>
     <p><strong>Nro de Crédito:</strong> <?php echo $credito['id']; ?></p>
-    <p><strong>Monto:</strong> $<?php echo number_format($credito['monto'], 2); ?></p>
+    <p><strong>Monto Prestado:</strong> $<?php echo number_format($credito['monto'], 2); ?></p>
     <p><strong>Cuotas:</strong> <?php echo $credito['cuotas']; ?></p>
-    <p><strong>Monto Total:</strong> <?php echo number_format($credito['monto'], 2); ?></p>
-<p><strong>Valor por cuota:</strong> <?php echo number_format($credito['monto'] / $credito['cuotas'], 2); ?></p>
+    <p><strong>Monto Total:</strong> $<?php echo number_format($credito['monto_total'], 2); ?></p>
+    <p><strong>Valor por cuota:</strong> $<?php echo number_format($credito['monto_cuota'], 2); ?></p>
     <?php if ($credito['cuotas'] > 1): ?>
         <p><strong>Fecha de Inicio:</strong> <?php echo formatearFecha($credito['fecha_inicio']); ?></p>
     <?php endif; ?>
     <p><strong>Fecha de Vencimiento:</strong> <?php echo formatearFecha($credito['fecha_vencimiento']); ?></p>
     <p><strong>Estado:</strong> <?php echo $credito['estado']; ?></p>
     <div style="margin: 20px 0;">
-    <!-- Botón Pagaré -->
-    <a href="generar_documentos.php?tipo=pagare&cliente=<?= urlencode($credito['nombre'] . ' ' . $credito['apellido']) ?>&dni=<?= $credito['dni'] ?>&domicilio=<?= urlencode($credito['domicilio']) ?>&telefono=<?= $credito['telefono'] ?>&monto=<?= $credito['monto'] ?>&cuotas=<?= $credito['cuotas'] ?>&fecha=<?= $credito['fecha_inicio'] ?>" 
-       class="btn-pdf" 
-       target="_blank">
-        Generar Pagaré
-    </a>
-    
-    <!-- Botón Contrato -->
-    <a href="generar_documentos.php?tipo=contrato&cliente=<?= urlencode($credito['nombre'] . ' ' . $credito['apellido']) ?>&dni=<?= $credito['dni'] ?>&domicilio=<?= urlencode($credito['domicilio']) ?>&telefono=<?= $credito['telefono'] ?>&monto=<?= $credito['monto'] ?>&cuotas=<?= $credito['cuotas'] ?>&fecha=<?= $credito['fecha_inicio'] ?>" 
-       class="btn-pdf" 
-       target="_blank">
-        Generar Contrato
-    </a>
-</div>
+        <!-- Botón Pagaré -->
+        <a href="generar_documentos.php?tipo=pagare&cliente=<?= urlencode($credito['nombre'] . ' ' . $credito['apellido']) ?>&dni=<?= $credito['dni'] ?>&domicilio=<?= urlencode($credito['domicilio']) ?>&telefono=<?= $credito['telefono'] ?>&monto=<?= $credito['monto'] ?>&cuotas=<?= $credito['cuotas'] ?>&fecha=<?= $credito['fecha_inicio'] ?>&monto_total=<?= $credito['monto_total'] ?>&monto_cuota=<?= $credito['monto_cuota'] ?>&frecuencia=<?= $credito['frecuencia'] ?>"
+            class="btn-pdf"
+            target="_blank">
+            Generar Pagaré
+        </a>
+
+        <!-- Botón Contrato -->
+        <a href="generar_documentos.php?tipo=contrato&cliente=<?= urlencode($credito['nombre'] . ' ' . $credito['apellido']) ?>&dni=<?= $credito['dni'] ?>&domicilio=<?= urlencode($credito['domicilio']) ?>&telefono=<?= $credito['telefono'] ?>&monto=<?= $credito['monto'] ?>&cuotas=<?= $credito['cuotas'] ?>&fecha_inicio=<?= $credito['fecha_inicio'] ?>&frecuencia=<?= $credito['frecuencia'] ?>&monto_total=<?= $credito['monto_total'] ?>&monto_cuota=<?= $credito['monto_cuota'] ?>" class="btn-pdf"
+            target="_blank">
+            Generar Contrato
+        </a>
+    </div>
 
     <h2>Información del Cliente</h2>
     <p><strong>Nombre:</strong> <?php echo $credito['nombre'] . ' ' . $credito['apellido']; ?></p>
@@ -167,10 +138,10 @@ function formatearFecha($fecha) {
                 <tr>
                     <td><?php echo $i; ?></td>
                     <td><?php echo formatearFecha($fechasPago[$i - 1]); ?></td>
-                    <td><?php echo number_format($valorCuota, 2); ?></td>
+                    <td>$<?php echo number_format($credito['monto_cuota']); ?></td>
                     <td>
                         <?php
-                        $pago = array_filter($pagos, function($pago) use ($i) {
+                        $pago = array_filter($pagos, function ($pago) use ($i) {
                             return $pago['nro_cuota'] == $i;
                         });
                         if (!empty($pago)) {

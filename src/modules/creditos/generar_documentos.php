@@ -1,4 +1,5 @@
 <?php
+ob_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/financiera/lib/fpdf.php';
 require_once __DIR__ . '/numero_a_letras.php';
 
@@ -6,12 +7,13 @@ class DocumentoPDF extends FPDF
 {
     public function convertirTexto($texto)
     {
-        return iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $texto);
+        return iconv('UTF-8', 'ISO-8859-1//TRANSLIT//IGNORE', $texto);
     }
 
-    function Header()
+    function aMayusculas($texto)
     {
-        // Sin encabezado específico
+        $textoConvertido = $this->convertirTexto($texto);
+        return mb_strtoupper($textoConvertido, 'ISO-8859-1');
     }
 
 
@@ -48,63 +50,69 @@ class DocumentoPDF extends FPDF
 
         return NumeroALetras::convertir($numero, 'PESOS', 'CENTAVOS');
     }
+
+    function formatearDNI($dni)
+    {
+        $dniStr = strval($dni);
+        if (strlen($dniStr) == 8) {
+            return substr($dniStr, 0, 2) . '.' . substr($dniStr, 2, 3) . '.' . substr($dniStr, 5);
+        }
+        return $dniStr; // Retorna sin cambios si no tiene 8 dígitos
+    }
 }
 
 
 // Parámetros GET
 $tipo = $_GET['tipo'] ?? 'pagare';
-$cliente = $_GET['cliente'] ?? 'Cliente no especificado';
 $dni = $_GET['dni'] ?? '00000000';
 $domicilio = $_GET['domicilio'] ?? 'Domicilio no especificado';
 $telefono = $_GET['telefono'] ?? '0000000000';
-$monto = $_GET['monto'] ?? '10000';
+$monto = $_GET['monto'] ?? '';
 $cuotas = $_GET['cuotas'] ?? 'Cuotas no especificadas';
 $fecha = $_GET[''] ?? date('Y-m-d');
 $fecha_inicio = $_GET['fecha_inicio'] ?? 'Fecha no especificada';
 $frecuencia = $_GET['frecuencia'] ?? 'Frecuencia no especificada';
-$monto_total = $monto + ($monto * 0.25 * $cuotas) + 11000;
-$monto_cuota = $monto_total / $cuotas;
+$monto_total = isset($_GET['monto_total']) ? floatval($_GET['monto_total']) : 0;
+$monto_cuota = isset($_GET['monto_cuota']) ? floatval($_GET['monto_cuota']) : 0;
+$cliente = isset($_GET['cliente']) ? urldecode($_GET['cliente']) : 'Cliente no especificado';
 
-// function calcularFechasPago($fechaInicio, $cuotas, $frecuencia)
-// {
-//     $fechas = [];
-//     $fechaActual = $fechaInicio;
 
-//     for ($i = 0; $i < $cuotas; $i++) {
-//         $fechas[] = $fechaActual;
-//         switch ($frecuencia) {
-//             case 'mensual':
-//                 $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +1 month'));
-//                 break;
-//             case 'quincenal':
-//                 $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +15 days'));
-//                 break;
-//             case 'semanal':
-//                 $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +7 days'));
-//                 break;
-//             default:
-//                 // Si no se especifica una frecuencia válida, se asume mensual
-//                 $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +1 month'));
-//                 break;
-//         }
-//     }
 
-//     return $fechas;
-// }
+function calcularFechasPago($fechaInicio, $cuotas, $frecuencia)
+{
+    $fechas = [];
+    $fechaActual = $fechaInicio;
 
-// // Obtener las fechas de pago
-// $fechasPago = calcularFechasPago($credito['fecha_inicio'], $credito['cuotas'], $credito['frecuencia']);
+    for ($i = 0; $i < $cuotas; $i++) {
+        $fechas[] = date('d/m/Y', strtotime($fechaActual)); // Formato dd/mm/aaaa
+        switch ($frecuencia) {
+            case 'mensual':
+                $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +1 month'));
+                break;
+            case 'quincenal':
+                $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +15 days'));
+                break;
+            case 'semanal':
+                $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +7 days'));
+                break;
+            default:
+                $fechaActual = date('Y-m-d', strtotime($fechaActual . ' +1 month'));
+                break;
+        }
+    }
+    return $fechas;
+}
 
-// $cantidad = count($fechasPago);
+// Calcular fechas de pago usando parámetros reales
+$fechasPago = calcularFechasPago($fecha_inicio, $cuotas, $frecuencia);
 
-// if ($cantidad === 0) {
-//     $fechas = ''; // Manejar caso sin fechas
-// } elseif ($cantidad === 1) {
-//     $fechas = $fechasPago[0]; // Solo una fecha
-// } else {
-//     $ultimaFecha = array_pop($fechasPago); // Extrae la última fecha
-//     $fechas = implode(', ', $fechasPago) . ' y ' . $ultimaFecha;
-// }
+// Crear texto descriptivo de fechas
+if ($cuotas == 1) {
+    $textoFechas = "con vencimiento el día " . $fechasPago[0];
+} else {
+    $ultimaFecha = array_pop($fechasPago);
+    $textoFechas = "con vencimientos los días " . implode(', ', $fechasPago) . " y " . $ultimaFecha;
+}
 
 $pdf = new DocumentoPDF();
 $pdf->SetTitle("Documentos");
@@ -116,7 +124,7 @@ $lineHeight = 11 * 0.6;
 if ($tipo == 'pagare') {
     // Encabezado con formato original
     $pdf->SetXY(-50, 30);
-    $pdf->Cell(0, $lineHeight, $pdf->convertirTexto('Por $' . number_format($monto_total, 2, ',', '.') . '-'), 0, 1, 'L');
+    $pdf->Cell(0, $lineHeight, $pdf->convertirTexto('Por $' . number_format($monto_total, 2, ',', '.') . '.-'), 0, 1, 'L');
 
     // Fecha formateada
     $pdf->SetXY(40, 40);
@@ -139,13 +147,13 @@ if ($tipo == 'pagare') {
     $pdf->Cell(18, 8, $pdf->convertirTexto("SEÑOR/A:"), 0, 0);
     // Configuración para la segunda celda (contenido)
     $pdf->SetFont('Times', ''); // Sin formato
-    $pdf->Cell(0, 8, $pdf->convertirTexto(" $cliente" . ".-"), 0, 1);
+    $pdf->Cell(0, 8, $pdf->aMayusculas(" $cliente" . ".-"), 0, 1);
 
     // Repetir para cada línea
     $pdf->SetFont('Times', 'IU');
     $pdf->Cell(12, 8, $pdf->convertirTexto("D.N.I.:"), 0, 0);
     $pdf->SetFont('Times', '');
-    $pdf->Cell(0, 8, $pdf->convertirTexto(" $dni" . ".-"), 0, 1);
+    $pdf->Cell(0, 8, $pdf->convertirTexto(" " . $pdf->formatearDNI($dni) . ".-"), 0, 1);
 
     $pdf->SetFont('Times', 'IU');
     $pdf->Cell(22, 8, $pdf->convertirTexto("DOMICILIO:"), 0, 0);
@@ -164,14 +172,14 @@ if ($tipo == 'pagare') {
 
     // Cuerpo del contrato
     $pdf->SetFont('Times', '', 12);
-    $texto = "      Entre el Señor WASHINGTON HORACIO RODRIGUEZ D.N.I. N° 20.130.181, con domicilio en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan, en adelante denominado \"EL MUTUANTE\", y por la otra parte lo hace la/el señor/a " . $cliente . " D.N.I. N° " . $dni . ", con domicilio en: " . $domicilio . ".- en adelante denominado \"EL MUTUARIO\", se celebra el presente contrato de mutuo o préstamo de dinero de acuerdo a las siguientes cláusulas:\n";
+    $texto = "      Entre el Señor WASHINGTON HORACIO RODRIGUEZ D.N.I. N° 20.130.181, con domicilio en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan, en adelante denominado \"EL MUTUANTE\", y por la otra parte lo hace la/el señor/a " . $pdf->aMayusculas($cliente) . " D.N.I. N° " . $dni . ", con domicilio en: " . $domicilio . ".- en adelante denominado \"EL MUTUARIO\", se celebra el presente contrato de mutuo o préstamo de dinero de acuerdo a las siguientes cláusulas:\n";
     $pdf->MultiCell(0, 8, $pdf->convertirTexto($texto), 0, 'J');
 
 
 
     // Cláusulas
     $clausulas = [
-        "PRIMERA. MONTO" => "      El Mutuante da en préstamo al Mutuario la suma de $" . number_format($monto, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto) . "), dinero que es entregado en sus propias manos, sirviendo el presente de suficiente recibo y carta de pago. – Dicho monto, será devuelto en $cuotas cuota/s con vencimiento el (fechas de pago) por la suma de $" . number_format($monto_cuota, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto_cuota) . ")" . ". El monto consignado up-supra, será abonado en el domicilio del mutuante, sito en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan y/o en el lugar que a posteriori se denunciare. -\n     Los montos estipulados reconocen el pacto de interés de financiación y cumplido que fuera el pago, ambas partes no tienen nada más que reclamar por ningún concepto. -",
+        "PRIMERA. MONTO" => "      El Mutuante da en préstamo al Mutuario la suma de $" . number_format($monto, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto) . "), dinero que es entregado en sus propias manos, sirviendo el presente de suficiente recibo y carta de pago. – Dicho monto, será devuelto en $cuotas cuota/s $textoFechas por la suma de $" . number_format($monto_cuota, 2, ',', '.') . " (" . $pdf->numeroAPalabras($monto_cuota) . ")" . ". El monto consignado up-supra, será abonado en el domicilio del mutuante, sito en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan y/o en el lugar que a posteriori se denunciare. -\n     Los montos estipulados reconocen el pacto de interés de financiación y cumplido que fuera el pago, ambas partes no tienen nada más que reclamar por ningún concepto. -",
 
         "SEGUNDA. IMPUTACIÓN" => "      El Mutuante imputará los pagos del Mutuario, primero a cancelar los gastos originados en la mora, luego a los intereses punitorios y compensatorios del monto en mora, y por último a la cancelación de la cuota atrasada.",
         "TERCERA. GARANTÍA" => "        En garantía de la restitución del préstamo, el Mutuario libra a favor del Mutuante un pagaré por PESOS (total a devolver) el cual será restituido al cancelarse todas las cuotas adeudadas. En caso de ser necesario accionar judicialmente, el Mutuante se obliga a accionar por el pagaré o por el presente contrato, pero no por ambos. -",
@@ -200,5 +208,6 @@ if ($tipo == 'pagare') {
     $pdf->MultiCell(0, 8, $fechaContrato, 0, 'J');
 }
 
+ob_end_clean(); // <- Limpiar buffer
+
 $pdf->Output();
-?>
