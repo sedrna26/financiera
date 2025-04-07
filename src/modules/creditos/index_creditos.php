@@ -55,7 +55,7 @@ $result = $conn->query($query);
                     <tr>
                         <td><?php echo $credito['id']; ?></td>
                         <td><?php echo $credito['nombre'] . ' ' . $credito['apellido']; ?></td>
-                        <td><?php echo number_format($credito['monto'], 2); ?></td>
+                        <td>$<?php echo number_format($credito['monto'], 2); ?></td>
                         <td><?php echo $credito['cuotas']; ?></td>
                         <td><?php echo $credito['fecha_inicio']; ?></td>
                         <td><?php echo $credito['fecha_vencimiento']; ?></td>
