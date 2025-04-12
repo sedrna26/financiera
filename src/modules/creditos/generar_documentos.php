@@ -171,8 +171,8 @@ if ($tipo == 'pagare') {
     $pdf->Ln(10);
 
     // Cuerpo del contrato
-    $pdf->SetFont('Times', '', 12);
-    $texto = "      Entre el Señor WASHINGTON HORACIO RODRIGUEZ D.N.I. N° 20.130.181, con domicilio en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan, en adelante denominado \"EL MUTUANTE\", y por la otra parte lo hace la/el señor/a " . $pdf->aMayusculas($cliente) . " D.N.I. N° " . $dni . ", con domicilio en: " . $domicilio . ".- en adelante denominado \"EL MUTUARIO\", se celebra el presente contrato de mutuo o préstamo de dinero de acuerdo a las siguientes cláusulas:\n";
+    $pdf->SetFont('Times', '', 11);
+    $texto = "      Entre el Señor WASHINGTON HORACIO RODRIGUEZ D.N.I. N° 20.130.181, con domicilio en calle Aberastain 510 (S), Planta Baja, Capital, Provincia de San Juan, en adelante denominado \"EL MUTUANTE\", y por la otra parte lo hace la/el señor/a " . $pdf->aMayusculas($cliente) . " D.N.I. N° " .  $pdf->formatearDNI($dni)  . ", con domicilio en: " . $domicilio . ".- en adelante denominado \"EL MUTUARIO\", se celebra el presente contrato de mutuo o préstamo de dinero de acuerdo a las siguientes cláusulas:\n";
     $pdf->MultiCell(0, 8, $pdf->convertirTexto($texto), 0, 'J');
 
 
