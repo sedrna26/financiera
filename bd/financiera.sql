@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 07-04-2025 a las 20:04:14
+-- Tiempo de generación: 13-04-2025 a las 17:01:34
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -43,8 +43,8 @@ CREATE TABLE `clientes` (
 
 INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `dni`, `domicilio`, `telefono`, `estado`) VALUES
 (1, 'Gabriela Deolinda', 'Montaña', '35938746', 'MZA D CASA 22 S/N, B° HUARPE, POCITO, SAN JUAN', '2646047760', 'Activo'),
-(2, 'Maria Laura', 'Muñoz', '10808262', 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', '2645619594', 'Activo'),
-(3, 'Lucia Alicia', 'Muñoz', '11839254', 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', '2645619594', 'Activo'),
+(2, 'Maria Laura', 'Muñoz', '10808262', 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', '2645619594', 'Inactivo'),
+(3, 'Lucia Alicia', 'Muñoz', '11839254', 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', '2645619594', 'Inactivo'),
 (4, 'Eugenia Belen', 'Carrizo Mercado', '35510951', 'MZA E CASA 5, B° HUARPE, POCITO, SAN JUAN', '2645041015', 'Activo'),
 (5, 'Brisa Daniela', 'Gomez', '42334403', 'LEMOS E/ CALLE 5 Y 6, LOTE N° 2, POCITO, SAN JUAN', '2644845920', 'Inactivo'),
 (6, 'Angela Teodora ', 'Trigo', '6662571', 'URQUIZA SUR 38 ENTRE CARRIL Y GRANADEROS, VILLA NACUSI, POCITO, SAN JUAN', '2645710719', 'Inactivo'),
@@ -112,6 +112,7 @@ INSERT INTO `creditos` (`id`, `cliente_id`, `monto`, `monto_total`, `monto_cuota
 (15, 11, 150000.00, 236000.00, 118000.00, 2, '2025-04-18', '2025-05-18', 'Activo', 'mensual'),
 (16, 9, 100000.00, 136000.00, 136000.00, 1, '2025-04-10', '2025-04-10', 'Activo', 'mensual'),
 (17, 10, 100000.00, 136000.00, 136000.00, 1, '2025-04-13', '2025-04-13', 'Activo', 'mensual'),
+(18, 32, 150000.00, 311000.00, 77750.00, 4, '2025-04-26', '2025-07-26', 'Activo', 'mensual'),
 (19, 32, 150000.00, 311000.00, 77750.00, 4, '2025-04-26', '2025-07-26', 'Activo', 'mensual'),
 (20, 33, 250000.00, 448500.00, 149500.00, 3, '2025-02-12', '2025-04-12', 'Activo', 'mensual'),
 (21, 34, 130000.00, 238500.00, 79500.00, 3, '2025-04-21', '2025-06-21', 'Activo', 'mensual'),
@@ -124,10 +125,7 @@ INSERT INTO `creditos` (`id`, `cliente_id`, `monto`, `monto_total`, `monto_cuota
 (28, 41, 100000.00, 186000.00, 62000.00, 3, '2025-03-20', '2025-05-20', 'Activo', 'mensual'),
 (29, 42, 200000.00, 361000.00, 120333.33, 3, '2025-03-10', '2025-05-10', 'Activo', 'mensual'),
 (30, 43, 150000.00, 273500.00, 91166.67, 3, '2025-03-21', '2025-05-21', 'Activo', 'mensual'),
-(31, 8, 100000.00, 186000.00, 62000.00, 3, '2025-03-14', '2025-05-14', 'Activo', 'mensual'),
-(33, 3, 250000.00, 323500.00, 323500.00, 1, '2025-04-26', '2025-04-26', 'Activo', 'mensual'),
-(34, 2, 150000.00, 198500.00, 198500.00, 1, '2025-04-26', '2025-04-26', 'Activo', 'mensual'),
-(35, 35, 100000.00, 186000.00, 62000.00, 3, '2025-05-20', '2025-07-20', 'Activo', 'mensual');
+(31, 8, 100000.00, 186000.00, 62000.00, 3, '2025-03-14', '2025-05-14', 'Activo', 'mensual');
 
 -- --------------------------------------------------------
 
@@ -141,8 +139,23 @@ CREATE TABLE `pagos` (
   `fecha_pago` date NOT NULL,
   `monto_pagado` decimal(10,2) NOT NULL,
   `estado` enum('Pagado','Impago') DEFAULT 'Impago',
-  `fecha_vencimiento` date DEFAULT NULL
+  `fecha_vencimiento` date DEFAULT NULL,
+  `nro_cuota` int(11) NOT NULL,
+  `monto_adeudado` decimal(10,2) NOT NULL,
+  `dias_retraso` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pagos`
+--
+
+INSERT INTO `pagos` (`id_pago`, `id_credito`, `fecha_pago`, `monto_pagado`, `estado`, `fecha_vencimiento`, `nro_cuota`, `monto_adeudado`, `dias_retraso`) VALUES
+(1, 13, '2025-04-13', 136000.00, 'Pagado', '0000-00-00', 1, 2025.00, 0),
+(2, 30, '2025-04-13', 101650.84, 'Pagado', '0000-00-00', 1, 2025.00, 0),
+(3, 29, '2025-04-13', 1407390.00, 'Pagado', '0000-00-00', 1, 2025.00, 0),
+(4, 29, '2025-04-13', 122738.33, 'Pagado', '0000-00-00', 2, 2025.00, 0),
+(5, 26, '2025-04-13', 102106.67, 'Pagado', '0000-00-00', 1, 2025.00, 0),
+(6, 16, '2025-04-13', 138040.00, 'Pagado', '0000-00-00', 1, 2025.00, 3);
 
 --
 -- Índices para tablas volcadas
@@ -182,7 +195,13 @@ ALTER TABLE `clientes`
 -- AUTO_INCREMENT de la tabla `creditos`
 --
 ALTER TABLE `creditos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+
+--
+-- AUTO_INCREMENT de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  MODIFY `id_pago` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Restricciones para tablas volcadas
