@@ -30,8 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $query = "INSERT INTO clientes (nombre, apellido, dni, domicilio, telefono, estado) 
                   VALUES ('$nombre', '$apellido', '$dni', '$domicilio', '$telefono', '$estado')";
         if ($conn->query($query)) {
-            // Redirigir al listado de clientes con un mensaje de éxito
-            header('Location: index.php?mensaje=Cliente registrado exitosamente');
+            session_start(); // Si no está ya al inicio del archivo
+            $_SESSION['mensaje'] = 'Cliente registrado exitosamente';
+            $_SESSION['tipo_mensaje'] = 'exito';
+            header('Location: index_clientes.php');
             exit();
         } else {
             $error = "Error al registrar el cliente: " . $conn->error;
@@ -45,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Registrar Nuevo Cliente</title>
-    <link rel="stylesheet" href="../../../style/style.css">
+    <!-- <link rel="stylesheet" href="../../../style/style.css"> -->
 </head>
 
 <body>

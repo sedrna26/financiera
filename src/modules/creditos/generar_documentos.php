@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 ob_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/financiera/lib/fpdf.php';
 require_once __DIR__ . '/numero_a_letras.php';

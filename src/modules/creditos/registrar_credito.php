@@ -85,25 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// // Función para calcular la fecha de vencimiento
-// function calcularFechaVencimiento($fecha_inicio, $cuotas, $frecuencia)
-// {
-//     $fecha_actual = $fecha_inicio;
-//     for ($i = 0; $i < $cuotas; $i++) { // Eliminar condicional de 1 cuota
-//         switch ($frecuencia) {
-//             case 'semanal':
-//                 $fecha_actual = date('Y-m-d', strtotime($fecha_actual . ' +7 days'));
-//                 break;
-//             case 'quincenal':
-//                 $fecha_actual = date('Y-m-d', strtotime($fecha_actual . ' +15 days'));
-//                 break;
-//             case 'mensual':
-//                 $fecha_actual = date('Y-m-d', strtotime($fecha_actual . ' +1 month'));
-//                 break;
-//         }
-//     }
-//     return $fecha_actual;
-// }
+
 // Obtener la lista de clientes
 if (isset($clientes_result)) {
     $clientes_result->free(); // Liberar resultados anteriores

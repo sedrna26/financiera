@@ -29,30 +29,65 @@ if ($result->num_rows == 0) {
 
 $credito = $result->fetch_assoc();
 
+// En la sección donde procesas los datos del formulario (método POST)
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Recibir y sanitizar los datos del formulario
     $cliente_id = intval($_POST['cliente_id']);
-    $monto = floatval($_POST['monto']);
+    $monto_base = floatval($_POST['monto']);
     $cuotas = intval($_POST['cuotas']);
     $fecha_inicio = $conn->real_escape_string($_POST['fecha_inicio']);
     $frecuencia = $conn->real_escape_string($_POST['frecuencia']);
     $estado = $conn->real_escape_string($_POST['estado']);
     $fecha_vencimiento = $conn->real_escape_string($_POST['fecha_vencimiento']);
 
-
+    // Agregar estos campos
+    $tasa_interes = floatval($_POST['intereses']) / 100; // Convertir a decimal
+    $gastos_administrativos = floatval($_POST['gastos']);
 
     // Validación de campos obligatorios
-    if (empty($cliente_id) || empty($monto) || empty($cuotas) || empty($fecha_inicio) || empty($fecha_vencimiento) || empty($frecuencia)) {
+    if (empty($cliente_id) || empty($monto_base) || empty($cuotas) || empty($fecha_inicio) || empty($fecha_vencimiento) || empty($frecuencia)) {
         $error = "Todos los campos son obligatorios.";
     }
+
+    // Calcular interés según frecuencia - similar a registrar_credito.php
+    switch ($frecuencia) {
+        case 'mensual':
+            $interes = $monto_base * $tasa_interes * $cuotas;
+            break;
+        case 'quincenal':
+            $interes = $monto_base * ($tasa_interes / 2) * $cuotas;
+            break;
+        case 'semanal':
+            $interes = $monto_base * ($tasa_interes / 4) * $cuotas;
+            break;
+        default:
+            $interes = 0;
+    }
+
+    $monto_total = $monto_base + $interes + $gastos_administrativos;
+    $monto_cuota = $monto_total / $cuotas;
 
     if (empty($error)) {
         // Actualizar los datos del crédito en la base de datos
         $update_query = "UPDATE creditos 
-                         SET cliente_id = ?, monto = ?, cuotas = ?, fecha_inicio = ?, fecha_vencimiento = ?, frecuencia = ?, estado = ? 
-                         WHERE id = ?";
+                        SET cliente_id = ?, monto = ?, cuotas = ?, fecha_inicio = ?, 
+                        fecha_vencimiento = ?, frecuencia = ?, estado = ?,
+                        monto_total = ?, monto_cuota = ? 
+                        WHERE id = ?";
         $stmt_update = $conn->prepare($update_query);
-        $stmt_update->bind_param("idissssi", $cliente_id, $monto, $cuotas, $fecha_inicio, $fecha_vencimiento, $frecuencia, $estado, $credito_id);
+        $stmt_update->bind_param(
+            "idissssddi",
+            $cliente_id,
+            $monto_base,
+            $cuotas,
+            $fecha_inicio,
+            $fecha_vencimiento,
+            $frecuencia,
+            $estado,
+            $monto_total,
+            $monto_cuota,
+            $credito_id
+        );
 
         if ($stmt_update->execute()) {
             $mensaje = "Crédito actualizado exitosamente.";
@@ -74,7 +109,7 @@ $clientes_result = $conn->query($clientes_query);
 <head>
     <meta charset="UTF-8">
     <title>Editar Crédito</title>
-    <link rel="stylesheet" href="../../../style/style.css">
+    <!-- <link rel="stylesheet" href="../../../style/style.css"> -->
 </head>
 
 <body>
@@ -123,6 +158,17 @@ $clientes_result = $conn->query($clientes_query);
 
         <label for="gastos">Gastos Administrativos:</label>
         <input type="number" name="gastos" id="gastos" step="0.01" value=11000 required><br><br>
+        <div>
+            <label>Monto Total Calculado:</label>
+            <span id="monto_total_display">0.00</span>
+            <input type="hidden" name="monto_total" id="monto_total_hidden">
+        </div>
+
+        <div>
+            <label>Monto por Cuota Calculado:</label>
+            <span id="monto_cuota_display">0.00</span>
+            <input type="hidden" name="monto_cuota" id="monto_cuota_hidden">
+        </div>
 
         <label for="estado">Estado:</label>
         <select name="estado" id="estado" required>
@@ -191,6 +237,63 @@ $clientes_result = $conn->query($clientes_query);
             document.getElementById('fecha_vencimiento').value = fecha.toISOString().split('T')[0];
             document.getElementById('fecha_vencimiento_hidden').value = fecha.toISOString().split('T')[0];
         }
+        // Agregar esta función para calcular el monto total y la cuota
+        function calcularMontos() {
+            const montoBase = parseFloat(document.getElementById('monto').value) || 0;
+            const cuotas = parseInt(document.getElementById('cuotas').value) || 1;
+            const frecuencia = document.getElementById('frecuencia').value;
+            const tasaInteres = parseFloat(document.getElementById('intereses').value) / 100 || 0;
+            const gastosAdmin = parseFloat(document.getElementById('gastos').value) || 0;
+
+            let interes = 0;
+
+            switch (frecuencia) {
+                case 'mensual':
+                    interes = montoBase * tasaInteres * cuotas;
+                    break;
+                case 'quincenal':
+                    interes = montoBase * (tasaInteres / 2) * cuotas;
+                    break;
+                case 'semanal':
+                    interes = montoBase * (tasaInteres / 4) * cuotas;
+                    break;
+            }
+
+            const montoTotal = montoBase + interes + gastosAdmin;
+            const montoCuota = montoTotal / cuotas;
+
+            // Mostrar los resultados (puedes añadir elementos en el HTML para mostrarlos)
+            if (document.getElementById('monto_total_display')) {
+                document.getElementById('monto_total_display').textContent = montoTotal.toFixed(2);
+            }
+
+            if (document.getElementById('monto_cuota_display')) {
+                document.getElementById('monto_cuota_display').textContent = montoCuota.toFixed(2);
+            }
+
+            // También puedes guardar estos valores en campos ocultos para enviarlos al servidor
+            if (document.getElementById('monto_total_hidden')) {
+                document.getElementById('monto_total_hidden').value = montoTotal.toFixed(2);
+            }
+
+            if (document.getElementById('monto_cuota_hidden')) {
+                document.getElementById('monto_cuota_hidden').value = montoCuota.toFixed(2);
+            }
+        }
+
+        // Añadir los event listeners a los campos que afectan el cálculo
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('monto').addEventListener('input', calcularMontos);
+            document.getElementById('cuotas').addEventListener('input', calcularMontos);
+            document.getElementById('frecuencia').addEventListener('change', calcularMontos);
+            document.getElementById('intereses').addEventListener('input', calcularMontos);
+            document.getElementById('gastos').addEventListener('input', calcularMontos);
+
+            // Calcular inicialmente
+            calcularMontos();
+            calcularVencimiento();
+            actualizarCuotas();
+        });
     </script>
 </body>
 
