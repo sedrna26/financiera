@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 16-04-2025 a las 09:09:58
+-- Tiempo de generación: 20-04-2025 a las 17:29:07
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -44,12 +44,12 @@ CREATE TABLE `clientes` (
 INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `dni`, `domicilio`, `telefono`, `estado`) VALUES
 (1, 'Gabriela Deolinda', 'Montaña', '35938746', 'MZA D CASA 22 S/N, B° HUARPE, POCITO, SAN JUAN', '2646047760', 'Activo'),
 (2, 'Maria Laura', 'Muñoz', '10808262', 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', '2645619594', 'Inactivo'),
-(3, 'Lucia Alicia', 'Muñoz', '11839254', 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', '2645619594', 'Inactivo'),
+(3, 'Lucia Alicia', 'Muñoz', '11839254', 'SEBASTIAN CABOT OESTE 315, B° HUAZIHUL, RIVADAVIA, SAN JUAN', '2645619594', 'Activo'),
 (4, 'Eugenia Belen', 'Carrizo Mercado', '35510951', 'MZA E CASA 5, B° HUARPE, POCITO, SAN JUAN', '2645041015', 'Activo'),
 (5, 'Brisa Daniela', 'Gomez', '42334403', 'LEMOS E/ CALLE 5 Y 6, LOTE N° 2, POCITO, SAN JUAN', '2644845920', 'Inactivo'),
 (6, 'Angela Teodora ', 'Trigo', '6662571', 'URQUIZA SUR 38 ENTRE CARRIL Y GRANADEROS, VILLA NACUSI, POCITO, SAN JUAN', '2645710719', 'Inactivo'),
 (7, 'Myriam del Carmen', 'Nuñez', '13672491', 'MZA U CASA 3, B° TERESA DE CALCUTA, POCITO, SAN JUAN', '0', 'Inactivo'),
-(8, 'Rosa Paola ', 'Fernandez', '26557734', 'B° TERESA DE CALCUTA, MZA F CASA 17, VA. ABERASTAIN, POCITO, SAN JUAN', '2645251067', 'Activo'),
+(8, 'Rosa Paola', 'Fernandez', '26557734', 'B° TERESA DE CALCUTA, MZA F CASA 17, VA. ABERASTAIN, POCITO, SAN JUAN', '2645251067', 'Activo'),
 (9, 'Carmen Nelly ', 'Mercado', '17166756', 'B° HUARPES MZA H CASA 17, POCITO, SAN JUAN', '2644840485', 'Activo'),
 (10, 'Joana Beatriz ', 'Carrizo Mercado', '42645141', 'B° HUARPES MZA H CASA 17, POCITO, SAN JUAN', '2645012637', 'Activo'),
 (11, 'Micaela Alejandra', 'Carrizo Mercado', '51195824', 'B° HUARPES MZA H CASA 17, POCITO, SAN JUAN', '2645407957', 'Activo'),
@@ -87,7 +87,9 @@ INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `dni`, `domicilio`, 
 (46, 'Ivana Teresa', 'Aguirre', '27260430', '', '2644160904', 'Activo'),
 (47, 'Camila Gisel', 'Manrique Gonzalez', '38462443', 'MZA N CASA 1, B° LOS MEDANOS, RAWSON, SAN JUAN', '2644725627', 'Activo'),
 (48, 'Camila Gisel', 'Manrique Gonzalez', '38462443', 'MZA N CASA 1, B° LOS MEDANOS, RAWSON, SAN JUAN', '2644725627', 'Inactivo'),
-(49, 'Daniela Romina', 'Correa', '31633434', '', '2643171078', 'Inactivo');
+(49, 'Daniela Romina', 'Correa', '31633434', '', '2643171078', 'Inactivo'),
+(50, 'Victoria Romina', 'Castro Vargas', '36034861', 'CALLE 7 E/ ESPAÑA Y LEMOS, LOTEO LUNA, MZA C CASA 14, POCITO, SAN JUAN', '2644438073', 'Activo'),
+(51, 'Sonia Beatriz', 'Lopez', '28967260', '', '2646720527', 'Activo');
 
 -- --------------------------------------------------------
 
@@ -135,7 +137,12 @@ INSERT INTO `creditos` (`id`, `cliente_id`, `monto`, `monto_total`, `monto_cuota
 (33, 15, 200000.00, 361000.00, 120333.33, 3, '2025-03-05', '2025-05-05', 'Activo', 'mensual'),
 (34, 45, 200000.00, 361000.00, 60166.67, 6, '2025-03-27', '2025-06-10', 'Activo', 'quincenal'),
 (35, 46, 100000.00, 199800.00, 66600.00, 3, '2025-03-12', '2025-05-12', 'Activo', 'mensual'),
-(36, 47, 250000.00, 447500.00, 149166.67, 3, '2025-02-15', '2025-04-15', 'Activo', 'mensual');
+(36, 47, 250000.00, 447500.00, 149166.67, 3, '2025-02-15', '2025-04-15', 'Activo', 'mensual'),
+(38, 50, 250000.00, 448500.00, 149500.00, 3, '2025-03-10', '2025-05-10', 'Activo', 'mensual'),
+(39, 3, 100000.00, 136000.00, 136000.00, 1, '2025-03-28', '2025-03-28', 'Activo', 'mensual'),
+(40, 3, 100000.00, 136000.00, 136000.00, 1, '2025-03-28', '2025-03-28', 'Activo', 'mensual'),
+(41, 51, 100000.00, 186000.00, 62000.00, 3, '2025-04-10', '2025-06-10', 'Activo', 'mensual'),
+(42, 1, 100000.00, 136000.00, 136000.00, 1, '2025-05-20', '2025-05-20', 'Activo', 'mensual');
 
 -- --------------------------------------------------------
 
@@ -176,7 +183,9 @@ INSERT INTO `pagos` (`id_pago`, `id_credito`, `fecha_pago`, `monto_pagado`, `est
 (14, 36, '2025-04-15', 194155.65, 'Pagado', '0000-00-00', 1, 2025.00, 1),
 (15, 36, '2025-04-15', 194155.17, 'Pagado', '0000-00-00', 1, 2025.00, 1),
 (16, 36, '2025-04-15', 194155.65, 'Pagado', '0000-00-00', 1, 2025.00, 1),
-(17, 36, '2025-04-15', 190000.00, 'Pagado', '0000-00-00', 1, 2025.00, 1);
+(17, 36, '2025-04-15', 190000.00, 'Pagado', '0000-00-00', 1, 2025.00, 1),
+(18, 15, '2025-04-18', 590.00, 'Pagado', '0000-00-00', 1, 2025.00, 0),
+(19, 15, '2025-04-18', 590.00, 'Pagado', '0000-00-00', 1, 2025.00, 0);
 
 --
 -- Índices para tablas volcadas
@@ -210,19 +219,19 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id_cliente` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id_cliente` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de la tabla `creditos`
 --
 ALTER TABLE `creditos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id_pago` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id_pago` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Restricciones para tablas volcadas
