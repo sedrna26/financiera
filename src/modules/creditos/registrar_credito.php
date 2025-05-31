@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitizar datos del formulario
     $cliente_id = intval($_POST['cliente_id']);
     $monto_base = floatval($_POST['monto']);
-    $gastos_administrativos = 11000;
+    $gastos_administrativos = 12000;
     $tasa_interes = 0.25;
     $cuotas = intval($_POST['cuotas']);
     $fecha_inicio = $conn->real_escape_string($_POST['fecha_inicio']);
